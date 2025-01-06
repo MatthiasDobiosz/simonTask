@@ -3,8 +3,14 @@
 #include "Game.h"
 
 struct MouseData {
+	int trialCount;
 	Uint32 timestamp;
 	int x, y;
+};
+
+struct TrialData {
+	int trialCount;
+	int success;
 };
 
 SDL_Texture* redBoxTex;
@@ -21,6 +27,8 @@ SDL_Texture* arrowRightTex;
 SDL_Rect arrowRightDestR;
 
 std::vector<MouseData> mouse_data;
+
+std::vector<TrialData> trial_data;
 
 Game::Game()
 {}
@@ -105,6 +113,29 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	SDL_FreeSurface(tmpSurfaceArrowRight);
 }
 
+void Game::advanceTrial(int success)
+{
+	deadlineTimer = SDL_GetTicks();
+	trialCount++;
+	trialPhase = 1;
+
+	if (trialCount == 10)
+	{
+		hasDeadline = true;
+		deadlineTimer = SDL_GetTicks();
+	}
+
+	if (trialCount == 20)
+	{
+		hasFeedback = false;
+	}
+
+	// potentially: reset mouse position when trial fails/succeeds
+	//SDL_WarpMouseInWindow(window, 960, 960);
+
+	trial_data.push_back({ trialCount, success });
+}
+
 void Game::handleEvents()	
 {
 	SDL_Event event;
@@ -118,9 +149,10 @@ void Game::handleEvents()
 			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1)
 			{
 				std::cout << "Red box clicked" << std::endl;
-
 				trialPhase = 2;
+				deadlineTimer = SDL_GetTicks();
 			}
+
 		case SDL_MOUSEMOTION:
 			// handle upwards movement when in Phase 2 
 			if (trialPhase == 2)
@@ -134,6 +166,7 @@ void Game::handleEvents()
 					else if (continousUpwardsMovement == 1) {
 						continousUpwardsMovement = 0;
 						trialPhase = 3;
+						deadlineTimer = SDL_GetTicks();
 					}
 				}
 				else {
@@ -147,9 +180,15 @@ void Game::handleEvents()
 				if (current_time - last_sample_time >= sampling_interval_ms) {
 					SDL_GetMouseState(&event.motion.x, &event.motion.y);
 
-					mouse_data.push_back({ current_time, event.motion.x, event.motion.y });
+					mouse_data.push_back({ trialCount, current_time, event.motion.x, event.motion.y });
 
 					last_sample_time = current_time;
+				}
+
+				// user is in responds box
+				if (isPointInRect(event.button.x, event.button.y, blackBoxLeftDestR) || isPointInRect(event.button.x, event.button.y, blackBoxRightDestR))
+				{
+					advanceTrial(1);
 				}
 			}
 		default: 
@@ -164,6 +203,27 @@ void Game::update()
 	// handle getting and setting current conditions for single trial (congruent/incongruent etc)
 	// handle success of trial
 
+	if (hasFeedback)
+	{
+		//TODO: implement feedback
+		//probably need to stop timer for deadlines etc. when feedback is shown
+	}
+
+	// reset timer and save failed trial if user takes too long
+	if (hasDeadline)
+	{
+		Uint32 timeDiff = SDL_GetTicks() - deadlineTimer;
+		
+		if (trialPhase == 1 && timeDiff > phase1Deadline || trialPhase == 2 && timeDiff > phase2Deadline || trialPhase == 3 && timeDiff > phase3Deadline)
+		{
+			advanceTrial(0);
+		}
+	}
+
+	if (trialCount == 400)
+	{
+		//TODO: End game when all trials done
+	}
 }
 
 void Game::render()
@@ -189,8 +249,9 @@ void Game::render()
 void Game::clean()
 {
 	std::cout << "Mouse Data Collected:\n";
+	//TODO: Save data at the end
 	for (const auto& data : mouse_data) {
-		std::cout << "Time: " << data.timestamp << " ms, X: " << data.x << ", Y: " << data.y << "\n";
+		std::cout << "Time: " << data.trialCount << data.timestamp << " ms, X: " << data.x << ", Y: " << data.y << "\n";
 	}
 
 	SDL_DestroyWindow(window);

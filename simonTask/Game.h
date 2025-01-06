@@ -13,6 +13,7 @@ public:
 	void init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
 
 	void handleEvents();
+	void advanceTrial(int success);
 	void update();
 	void render();
 	void clean();
@@ -25,11 +26,16 @@ private:
 	int sampling_interval_ms = 10;
 	Uint32 last_sample_time = -1;
 
+	Uint32 deadlineTimer = 0;
+
 	// track the upwards movement
 	int continousUpwardsMovement = 0;
 
 	// track the phase for a single trial
 	int trialPhase = 1;
+	Uint32 phase1Deadline = 1500;
+	Uint32 phase2Deadline = 1500;
+	Uint32 phase3Deadline = 2000;
 
 	//Information about trialCount and trial conditions
 	bool isPracticeTrial = true;
