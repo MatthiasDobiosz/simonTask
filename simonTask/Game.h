@@ -3,6 +3,16 @@
 #include "SDL_image.h"	
 #include <vector>
 #include <iostream>
+#include <algorithm>
+#include <random>
+#include <string>
+
+struct Trial {
+	bool currentCongruent;
+	bool previousCongruent;
+	bool stimulusDirection;
+	bool stimulusPosition;
+};
 
 class Game
 {
@@ -28,6 +38,8 @@ private:
 
 	Uint32 deadlineTimer = 0;
 
+	std::vector<Trial> shuffledTrials;
+
 	// track the upwards movement
 	int continousUpwardsMovement = 0;
 
@@ -44,8 +56,7 @@ private:
 	int trialCount = 1;
 
 	//information about state of the stimulus
-	bool isLocationLeft = true;
-	bool isArrowLeft = true;
+	Trial currentTrial;
 
 	bool isRunning;
 	SDL_Window *window;

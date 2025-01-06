@@ -40,6 +40,74 @@ bool isPointInRect(int x, int y, const SDL_Rect& rect) {
 		y >= rect.y && y <= rect.y + rect.h;
 }
 
+std::vector<Trial> generateMatrix(int repetitionsPerCombination) {
+	std::vector<Trial> trials;
+
+	for (int currentCongruent = 0; currentCongruent <= 1; ++currentCongruent) {
+		for (int previousCongruent = 0; previousCongruent <= 1; ++previousCongruent) {
+			for (int stimulusDirection = 0; stimulusDirection <= 1; ++stimulusDirection) {
+				for (int stimulusPosition = 0; stimulusPosition <= 1; ++stimulusPosition) {
+					for (int i = 0; i < repetitionsPerCombination; ++i) {
+						trials.push_back({ static_cast<bool>(currentCongruent),
+										  static_cast<bool>(previousCongruent),
+										  static_cast<bool>(stimulusDirection),
+										  static_cast<bool>(stimulusPosition) });
+					}
+				}
+			}
+		}
+	}
+
+	return trials;
+}
+
+void shuffleMatrix(std::vector<Trial>& trials) {
+	std::random_device rd;
+	std::mt19937 g(rd());
+	std::shuffle(trials.begin(), trials.end(), g);
+}
+
+void addPreviousConiditonsToMatrix(std::vector<Trial>& trials)
+{
+	for (int i = 0; i < trials.size(); i++)
+	{
+		if (i != 0)
+		{
+			trials[i].previousCongruent = trials[i - 1].currentCongruent;
+		}
+	}
+}
+
+void printMatrix(const std::vector<Trial>& trials) {
+	for (const auto& trial : trials) {
+		std::cout << "Current: " << (trial.currentCongruent ? "Congruent" : "Incongruent")
+			<< ", Previous: " << (trial.previousCongruent ? "Congruent" : "Incongruent")
+			<< ", Direction: " << (trial.stimulusDirection ? "Right" : "Left")
+			<< ", Position: " << (trial.stimulusPosition ? "Right" : "Left") << '\n';
+	}
+}
+
+bool isCorrectResponse(std::string direction, Trial trial)
+{
+	if (direction == "right") {
+		if (trial.stimulusDirection)
+		{
+			return true;
+		}
+		return false;
+	}
+	else if (direction == "left")
+	{
+		if (!trial.stimulusDirection)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	return false;
+}
+
 void Game::init(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
 {
 	redBoxDestR.h = 240;
@@ -66,6 +134,12 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	arrowRightDestR.w = 300;
 	arrowRightDestR.x = 1420;
 	arrowRightDestR.y = 500;
+
+	auto trials = generateMatrix(1);
+	shuffleMatrix(trials);
+	addPreviousConiditonsToMatrix(trials);
+	shuffledTrials = trials;
+	currentTrial = shuffledTrials[0];
 
 	int flags = 0;
 	if (fullscreen) 
@@ -118,6 +192,8 @@ void Game::advanceTrial(int success)
 	deadlineTimer = SDL_GetTicks();
 	trialCount++;
 	trialPhase = 1;
+
+	currentTrial = shuffledTrials[trialCount];
 
 	if (trialCount == 10)
 	{
@@ -186,9 +262,30 @@ void Game::handleEvents()
 				}
 
 				// user is in responds box
-				if (isPointInRect(event.button.x, event.button.y, blackBoxLeftDestR) || isPointInRect(event.button.x, event.button.y, blackBoxRightDestR))
+				if (isPointInRect(event.button.x, event.button.y, blackBoxLeftDestR))
 				{
-					advanceTrial(1);
+					if (isCorrectResponse("left", currentTrial))
+					{
+						std::cout << "correct" << std::endl;
+						advanceTrial(1);
+					}
+					else {
+						std::cout << "incorrect" << std::endl;
+						advanceTrial(0);
+					}
+				
+				}
+				if (isPointInRect(event.button.x, event.button.y, blackBoxRightDestR))
+				{
+					if (isCorrectResponse("right", currentTrial))
+					{
+						std::cout << "correct" << std::endl;
+						advanceTrial(1);
+					}
+					else {
+						std::cout << "incorrect" << std::endl;
+						advanceTrial(0);
+					}
 				}
 			}
 		default: 
@@ -238,10 +335,28 @@ void Game::render()
 		SDL_RenderCopy(renderer, blackBoxTex, NULL, &blackBoxRightDestR);
 	}
 	else {
+		if (currentTrial.stimulusPosition)
+		{
+			if (currentTrial.stimulusDirection)
+			{
+				SDL_RenderCopy(renderer, arrowRightTex, NULL, &arrowRightDestR);
+			}
+			else {
+				SDL_RenderCopy(renderer, arrowLeftTex, NULL, &arrowRightDestR);
+			}
+		}
+		else {
+			if (currentTrial.stimulusDirection)
+			{
+				SDL_RenderCopy(renderer, arrowRightTex, NULL, &arrowLeftDestR);
+			}
+			else {
+				SDL_RenderCopy(renderer, arrowLeftTex, NULL, &arrowLeftDestR);
+			}
+		}
+
 		SDL_RenderCopy(renderer, blackBoxTex, NULL, &blackBoxLeftDestR);
 		SDL_RenderCopy(renderer, blackBoxTex, NULL, &blackBoxRightDestR);
-		SDL_RenderCopy(renderer, arrowLeftTex, NULL, &arrowLeftDestR);
-		SDL_RenderCopy(renderer, arrowRightTex, NULL, &arrowRightDestR);
 	}
 	SDL_RenderPresent(renderer);
 }
@@ -250,9 +365,14 @@ void Game::clean()
 {
 	std::cout << "Mouse Data Collected:\n";
 	//TODO: Save data at the end
+
+	//printMatrix(shuffledTrials);
+	/*
 	for (const auto& data : mouse_data) {
 		std::cout << "Time: " << data.trialCount << data.timestamp << " ms, X: " << data.x << ", Y: " << data.y << "\n";
 	}
+	*/
+
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
