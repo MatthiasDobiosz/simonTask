@@ -3,6 +3,7 @@
 #include "SDL_image.h"	
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <random>
 #include <string>
@@ -23,10 +24,12 @@ public:
 	void init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
 
 	void handleEvents();
+	void generateAndShuffleMatrix(int matrixBlockSize);
 	void advanceTrial(int success);
 	void update();
 	void render();
 	void clean();
+	void saveData();
 
 	bool running() { return isRunning; }
 
@@ -35,6 +38,7 @@ private:
 	// 10ms = 100Hz
 	int sampling_interval_ms = 10;
 	Uint32 last_sample_time = -1;
+	Uint32 reaction_time = 0;
 
 	Uint32 deadlineTimer = 0;
 
@@ -50,10 +54,23 @@ private:
 	Uint32 phase3Deadline = 2000;
 
 	//Information about trialCount and trial conditions
-	bool isPracticeTrial = true;
-	bool hasDeadline = true;
+	bool hasDeadline = false;
 	bool hasFeedback = true;
 	int trialCount = 1;
+
+	bool isPracticeBlock = true;
+	int practiceBlockSize = 4;
+	int practiceBockDeadlineCutoff = 2;
+	int practiceBlockFeedbackCutoff = 3;
+
+	int experimentalBlockCount = 1;
+	int experimentalBlockSize = 320;
+	int experimentalBlockNum = 1;
+
+	int lastSave = 1;
+	std::ofstream mouseDataFile;	
+	std::ofstream trialDataFile;
+
 
 	//information about state of the stimulus
 	Trial currentTrial;

@@ -4,13 +4,16 @@
 
 struct MouseData {
 	int trialCount;
+	int blockCount;
 	Uint32 timestamp;
 	int x, y;
 };
 
 struct TrialData {
 	int trialCount;
+	int blockCount;
 	int success;
+	Uint32 reactionTime;
 };
 
 SDL_Texture* redBoxTex;
@@ -38,6 +41,10 @@ Game::~Game()
 bool isPointInRect(int x, int y, const SDL_Rect& rect) {
 	return x >= rect.x && x <= rect.x + rect.w &&
 		y >= rect.y && y <= rect.y + rect.h;
+}
+
+int getNextMultipleOf16(int number) {
+	return (number + 15) / 16;
 }
 
 std::vector<Trial> generateMatrix(int repetitionsPerCombination) {
@@ -108,6 +115,50 @@ bool isCorrectResponse(std::string direction, Trial trial)
 	return false;
 }
 
+void Game::saveData()
+{
+	if (mouseDataFile) {
+		for (const auto& data : mouse_data) {
+			mouseDataFile << data.timestamp << "," << data.trialCount << "," << data.blockCount << "," << data.x << "," << data.y << std::endl;
+		}
+	}
+	else {
+		std::cerr << "Error: mousedatafile not open for writing.\n";
+	}
+
+	std::cout << "Mouse Data Collected\n";
+
+	if (trialDataFile) {
+		for (const auto& data : trial_data) {
+			trialDataFile << data.trialCount << "," << data.blockCount << "," << data.success << "," << data.reactionTime << std::endl;
+		}
+	}
+	else {
+		std::cerr << "Error: trialDatafile not open for writing.\n";
+	}
+
+	std::cout << "Trial Data Collected\n";
+
+	mouse_data.clear();
+	mouse_data.shrink_to_fit();
+
+	trial_data.clear();
+	trial_data.shrink_to_fit();
+
+	/**
+	std::cout << "Mouse Data Collected:\n";
+	for (const auto& data : mouse_data) {
+		std::cout << "Time: " << data.timestamp << ", Trial: " << data.trialCount << ", Block: " << data.blockCount << ", X: " << data.x << ", Y: " << data.y << std::endl;
+	}
+
+	std::cout << "Trial Data Collected:\n";
+	for (const auto& data : trial_data) {
+		std::cout << "Trial: " << data.trialCount << ", Block: " << data.blockCount << ", Success: " << data.success << ", RT: " << data.reactionTime << std::endl;
+	}
+	*/
+	
+}
+
 void Game::init(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
 {
 	redBoxDestR.h = 240;
@@ -135,11 +186,19 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	arrowRightDestR.x = 1420;
 	arrowRightDestR.y = 500;
 
-	auto trials = generateMatrix(1);
-	shuffleMatrix(trials);
-	addPreviousConiditonsToMatrix(trials);
-	shuffledTrials = trials;
-	currentTrial = shuffledTrials[0];
+	generateAndShuffleMatrix(getNextMultipleOf16(practiceBlockSize));
+
+	mouseDataFile.open("data/mouse_data.txt", std::ios::app);
+
+	if (!mouseDataFile) {
+		std::cerr << "Error: Could not open mouse data file for writing.\n";
+	}
+
+	trialDataFile.open("data/trial_data.txt", std::ios::app);
+
+	if (!trialDataFile) {
+		std::cerr << "Error: Could not open trial trial file for writing.\n";
+	}
 
 	int flags = 0;
 	if (fullscreen) 
@@ -187,29 +246,77 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	SDL_FreeSurface(tmpSurfaceArrowRight);
 }
 
+void Game::generateAndShuffleMatrix(int matrixBlockSize)
+{
+	auto trials = generateMatrix(matrixBlockSize);
+	shuffleMatrix(trials);
+	addPreviousConiditonsToMatrix(trials);
+	shuffledTrials = trials;
+	currentTrial = shuffledTrials[0];
+}
+
 void Game::advanceTrial(int success)
 {
+	if (!isPracticeBlock) {
+		trial_data.push_back({ trialCount, experimentalBlockCount, success, reaction_time });
+	}
+
 	deadlineTimer = SDL_GetTicks();
 	trialCount++;
 	trialPhase = 1;
 
-	currentTrial = shuffledTrials[trialCount];
-
-	if (trialCount == 10)
+	if (isPracticeBlock) 
 	{
-		hasDeadline = true;
-		deadlineTimer = SDL_GetTicks();
+		if (trialCount == practiceBockDeadlineCutoff+1)
+		{
+			hasDeadline = true;
+		}
+
+		if (trialCount == practiceBlockFeedbackCutoff+1)
+		{
+			hasFeedback = false;
+		}
+
+		if (trialCount > practiceBlockSize)
+		{
+			trialCount = 1;
+			isPracticeBlock = false;
+			generateAndShuffleMatrix(getNextMultipleOf16(experimentalBlockSize));
+		}
+	}
+	else {
+		if (trialCount > experimentalBlockSize)
+		{	
+			experimentalBlockCount++;
+
+			if (experimentalBlockCount > experimentalBlockNum)
+			{
+				saveData();
+				lastSave = 0;
+				isRunning = false;
+			}
+			else {
+				trialCount = 1;
+				generateAndShuffleMatrix(getNextMultipleOf16(experimentalBlockSize));
+			}
+		}
 	}
 
-	if (trialCount == 20)
-	{
-		hasFeedback = false;
+	if (isRunning) {
+		int currentTrialIdx = trialCount - 1;
+		currentTrial = shuffledTrials[currentTrialIdx];
+		reaction_time = 0;
+
+		lastSave++;
+
+		if (lastSave == 10) {
+			saveData();
+			lastSave = 0;
+		}
 	}
 
 	// potentially: reset mouse position when trial fails/succeeds
 	//SDL_WarpMouseInWindow(window, 960, 960);
-
-	trial_data.push_back({ trialCount, success });
 }
 
 void Game::handleEvents()	
@@ -224,7 +331,6 @@ void Game::handleEvents()
 		case SDL_MOUSEBUTTONDOWN:
 			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1)
 			{
-				std::cout << "Red box clicked" << std::endl;
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
 			}
@@ -243,6 +349,7 @@ void Game::handleEvents()
 						continousUpwardsMovement = 0;
 						trialPhase = 3;
 						deadlineTimer = SDL_GetTicks();
+						last_sample_time = SDL_GetTicks();
 					}
 				}
 				else {
@@ -251,14 +358,16 @@ void Game::handleEvents()
 			}
 			// handle tracking of mouse data in Phase 3
 			else if (trialPhase == 3) {
-				Uint32 current_time = SDL_GetTicks();
+				Uint32 currentTime = SDL_GetTicks();
+				Uint32 timeDiff = currentTime - last_sample_time;
+				reaction_time += timeDiff;
 
-				if (current_time - last_sample_time >= sampling_interval_ms) {
+				if ((timeDiff >= sampling_interval_ms) && !isPracticeBlock) {
 					SDL_GetMouseState(&event.motion.x, &event.motion.y);
 
-					mouse_data.push_back({ trialCount, current_time, event.motion.x, event.motion.y });
+					mouse_data.push_back({ trialCount, experimentalBlockCount, timeDiff, event.motion.x, event.motion.y });
 
-					last_sample_time = current_time;
+					last_sample_time = currentTime;
 				}
 
 				// user is in responds box
@@ -266,11 +375,11 @@ void Game::handleEvents()
 				{
 					if (isCorrectResponse("left", currentTrial))
 					{
-						std::cout << "correct" << std::endl;
+						//std::cout << "correct" << std::endl;
 						advanceTrial(1);
 					}
 					else {
-						std::cout << "incorrect" << std::endl;
+						//std::cout << "incorrect" << std::endl;
 						advanceTrial(0);
 					}
 				
@@ -279,11 +388,11 @@ void Game::handleEvents()
 				{
 					if (isCorrectResponse("right", currentTrial))
 					{
-						std::cout << "correct" << std::endl;
+						//std::cout << "correct" << std::endl;
 						advanceTrial(1);
 					}
 					else {
-						std::cout << "incorrect" << std::endl;
+						//std::cout << "incorrect" << std::endl;
 						advanceTrial(0);
 					}
 				}
@@ -295,11 +404,6 @@ void Game::handleEvents()
 
 void Game::update()
 {
-	// handle timer/deadlines here: check which phase is currently running, set/reset timer accordingly and fail trial if necessary
-	// handle overall trial states (trialCount, trialConditions, feedback)
-	// handle getting and setting current conditions for single trial (congruent/incongruent etc)
-	// handle success of trial
-
 	if (hasFeedback)
 	{
 		//TODO: implement feedback
@@ -315,11 +419,6 @@ void Game::update()
 		{
 			advanceTrial(0);
 		}
-	}
-
-	if (trialCount == 400)
-	{
-		//TODO: End game when all trials done
 	}
 }
 
@@ -363,16 +462,19 @@ void Game::render()
 
 void Game::clean()
 {
-	std::cout << "Mouse Data Collected:\n";
 	//TODO: Save data at the end
 
 	//printMatrix(shuffledTrials);
-	/*
-	for (const auto& data : mouse_data) {
-		std::cout << "Time: " << data.trialCount << data.timestamp << " ms, X: " << data.x << ", Y: " << data.y << "\n";
-	}
-	*/
 
+	if (mouseDataFile.is_open()) {
+		mouseDataFile.close(); // Close the file
+		std::cout << "Mousedata file closed.\n";
+	}
+	
+	if (trialDataFile.is_open()) {
+		trialDataFile.close(); // Close the file
+		std::cout << "Trialdata file closed.\n";
+	}
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
