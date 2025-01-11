@@ -9,11 +9,17 @@ struct MouseData {
 	int x, y;
 };
 
-struct TrialData {
+struct TrialInformationData {
 	int trialCount;
 	int blockCount;
 	int success;
 	Uint32 reactionTime;
+	bool currentCongruency;
+	bool currentStimulusDirection;
+	bool currentStimulusLocation;
+	bool previousCongruency;
+	bool previousStimulusDirection;
+	bool previousStimulusLocation;
 };
 
 SDL_Texture* redBoxTex;
@@ -31,7 +37,7 @@ SDL_Rect arrowRightDestR;
 
 std::vector<MouseData> mouse_data;
 
-std::vector<TrialData> trial_data;
+std::vector<TrialInformationData> trial_information_data;
 
 Game::Game()
 {}
@@ -49,16 +55,20 @@ int getNextMultipleOf16(int number) {
 
 std::vector<Trial> generateMatrix(int repetitionsPerCombination) {
 	std::vector<Trial> trials;
+	bool isFirstTrial = true; 
 
 	for (int currentCongruent = 0; currentCongruent <= 1; ++currentCongruent) {
 		for (int previousCongruent = 0; previousCongruent <= 1; ++previousCongruent) {
 			for (int stimulusDirection = 0; stimulusDirection <= 1; ++stimulusDirection) {
 				for (int stimulusPosition = 0; stimulusPosition <= 1; ++stimulusPosition) {
 					for (int i = 0; i < repetitionsPerCombination; ++i) {
-						trials.push_back({ static_cast<bool>(currentCongruent),
-										  static_cast<bool>(previousCongruent),
-										  static_cast<bool>(stimulusDirection),
-										  static_cast<bool>(stimulusPosition) });
+						trials.push_back({
+							static_cast<bool>(currentCongruent),
+							static_cast<bool>(stimulusDirection),
+							static_cast<bool>(stimulusPosition),
+							isFirstTrial 
+							});
+						isFirstTrial = false;
 					}
 				}
 			}
@@ -68,12 +78,14 @@ std::vector<Trial> generateMatrix(int repetitionsPerCombination) {
 	return trials;
 }
 
+
 void shuffleMatrix(std::vector<Trial>& trials) {
 	std::random_device rd;
 	std::mt19937 g(rd());
 	std::shuffle(trials.begin(), trials.end(), g);
 }
 
+/**
 void addPreviousConiditonsToMatrix(std::vector<Trial>& trials)
 {
 	for (int i = 0; i < trials.size(); i++)
@@ -83,12 +95,11 @@ void addPreviousConiditonsToMatrix(std::vector<Trial>& trials)
 			trials[i].previousCongruent = trials[i - 1].currentCongruent;
 		}
 	}
-}
+} */
 
 void printMatrix(const std::vector<Trial>& trials) {
 	for (const auto& trial : trials) {
-		std::cout << "Current: " << (trial.currentCongruent ? "Congruent" : "Incongruent")
-			<< ", Previous: " << (trial.previousCongruent ? "Congruent" : "Incongruent")
+		std::cout << "Congruency: " << (trial.currentCongruent ? "Congruent" : "Incongruent")
 			<< ", Direction: " << (trial.stimulusDirection ? "Right" : "Left")
 			<< ", Position: " << (trial.stimulusPosition ? "Right" : "Left") << '\n';
 	}
@@ -129,8 +140,8 @@ void Game::saveData()
 	std::cout << "Mouse Data Collected\n";
 
 	if (trialDataFile) {
-		for (const auto& data : trial_data) {
-			trialDataFile << data.trialCount << "," << data.blockCount << "," << data.success << "," << data.reactionTime << std::endl;
+		for (const auto& data : trial_information_data) {
+			trialDataFile << data.trialCount << "," << data.blockCount << "," << data.success << "," << data.reactionTime << "," << data.currentCongruency << "," << data.currentStimulusDirection << "," << data.currentStimulusLocation << "," << data.previousCongruency << "," << data.previousStimulusDirection << "," << data.previousStimulusLocation << std::endl;
 		}
 	}
 	else {
@@ -142,8 +153,8 @@ void Game::saveData()
 	mouse_data.clear();
 	mouse_data.shrink_to_fit();
 
-	trial_data.clear();
-	trial_data.shrink_to_fit();
+	trial_information_data.clear();
+	trial_information_data.shrink_to_fit();
 
 	/**
 	std::cout << "Mouse Data Collected:\n";
@@ -194,11 +205,15 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 		std::cerr << "Error: Could not open mouse data file for writing.\n";
 	}
 
+	mouseDataFile << "timedifference," << "trialnumber," << "blocknumber," << "xpos," << "ypos" << std::endl;
+
 	trialDataFile.open("data/trial_data.txt", std::ios::app);
 
 	if (!trialDataFile) {
 		std::cerr << "Error: Could not open trial trial file for writing.\n";
 	}
+
+	trialDataFile << "trialnumber," << "blocknumber," << "success," << "reactiontime," << "currentcongruency," << "currentdirection," << "currentlocation," << "previouscongruency," << "previousdirection," << "previouslocation" << std::endl;
 
 	int flags = 0;
 	if (fullscreen) 
@@ -250,15 +265,18 @@ void Game::generateAndShuffleMatrix(int matrixBlockSize)
 {
 	auto trials = generateMatrix(matrixBlockSize);
 	shuffleMatrix(trials);
-	addPreviousConiditonsToMatrix(trials);
 	shuffledTrials = trials;
 	currentTrial = shuffledTrials[0];
+	previousTrial = {};
 }
 
 void Game::advanceTrial(int success)
 {
 	if (!isPracticeBlock) {
-		trial_data.push_back({ trialCount, experimentalBlockCount, success, reaction_time });
+		if (currentTrial.isFirst) {
+			trial_information_data.push_back({ trialCount, experimentalBlockCount, success, reaction_time, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition });
+		}
+		trial_information_data.push_back({ trialCount, experimentalBlockCount, success, reaction_time, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition, previousTrial.currentCongruent, previousTrial.stimulusDirection, previousTrial.stimulusPosition });
 	}
 
 	deadlineTimer = SDL_GetTicks();
@@ -303,6 +321,7 @@ void Game::advanceTrial(int success)
 	}
 
 	if (isRunning) {
+		previousTrial = currentTrial;
 		int currentTrialIdx = trialCount - 1;
 		currentTrial = shuffledTrials[currentTrialIdx];
 		reaction_time = 0;

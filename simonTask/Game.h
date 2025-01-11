@@ -10,9 +10,9 @@
 
 struct Trial {
 	bool currentCongruent;
-	bool previousCongruent;
 	bool stimulusDirection;
 	bool stimulusPosition;
+	bool isFirst = false;
 };
 
 class Game
@@ -64,7 +64,7 @@ private:
 	int practiceBlockFeedbackCutoff = 3;
 
 	int experimentalBlockCount = 1;
-	int experimentalBlockSize = 320;
+	int experimentalBlockSize = 10;
 	int experimentalBlockNum = 1;
 
 	int lastSave = 1;
@@ -74,6 +74,7 @@ private:
 
 	//information about state of the stimulus
 	Trial currentTrial;
+	Trial previousTrial;
 
 	bool isRunning;
 	SDL_Window *window;
