@@ -389,6 +389,12 @@ void Game::handleEvents()
 						trialPhase = 3;
 						deadlineTimer = SDL_GetTicks();
 						last_sample_time = SDL_GetTicks();
+
+						if (!isPracticeBlock) {
+							SDL_GetMouseState(&event.motion.x, &event.motion.y);
+
+							mouse_data.push_back({ trialCount, experimentalBlockCount, 0, event.motion.x, event.motion.y });
+						}
 					}
 				}
 				else {
