@@ -35,6 +35,9 @@ SDL_Rect arrowLeftDestR;
 SDL_Texture* arrowRightTex;
 SDL_Rect arrowRightDestR;
 
+SDL_Texture* feedbackTex;
+SDL_Rect feedbackDestR;
+
 std::vector<MouseData> mouse_data;
 
 std::vector<TrialInformationData> trial_information_data;
@@ -197,6 +200,11 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	arrowRightDestR.x = 1420;
 	arrowRightDestR.y = 500;
 
+	feedbackDestR.h = 1080;
+	feedbackDestR.w = 1920;
+	feedbackDestR.x = 0;
+	feedbackDestR.y = 0;
+
 	generateAndShuffleMatrix(getNextMultipleOf16(practiceBlockSize));
 
 	mouseDataFile.open("data/mouse_data.txt", std::ios::app);
@@ -259,6 +267,10 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	SDL_Surface* tmpSurfaceArrowRight = IMG_Load("assets/ArrowRight.png");
 	arrowRightTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceArrowRight);
 	SDL_FreeSurface(tmpSurfaceArrowRight);
+
+	SDL_Surface* tmpSurfaceFeedback = IMG_Load("assets/feedback.png");
+	feedbackTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceFeedback);
+	SDL_FreeSurface(tmpSurfaceFeedback);
 }
 
 void Game::generateAndShuffleMatrix(int matrixBlockSize)
@@ -285,6 +297,10 @@ void Game::advanceTrial(int success)
 
 	if (isPracticeBlock) 
 	{
+		if (success == 0 && hasFeedback) {
+			isFeedbackDisplayed = true;
+		}
+
 		if (trialCount == practiceBockDeadlineCutoff+1)
 		{
 			hasDeadline = true;
@@ -348,13 +364,17 @@ void Game::handleEvents()
 			isRunning = false;
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1)
+			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && !isFeedbackDisplayed)
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
 			}
 
 		case SDL_MOUSEMOTION:
+			if (isFeedbackDisplayed) {
+				break;
+			}
+
 			// handle upwards movement when in Phase 2 
 			if (trialPhase == 2)
 			{
@@ -423,14 +443,20 @@ void Game::handleEvents()
 
 void Game::update()
 {
-	if (hasFeedback)
+	if (isFeedbackDisplayed)
 	{
-		//TODO: implement feedback
-		//probably need to stop timer for deadlines etc. when feedback is shown
-	}
+		deadlineTimer = SDL_GetTicks();
+		if (feedbackTimer == 0) {
+			feedbackTimer = SDL_GetTicks();
+		}
+		Uint32 timeDiff = SDL_GetTicks() - feedbackTimer;
 
-	// reset timer and save failed trial if user takes too long
-	if (hasDeadline)
+		if (timeDiff > 500) {
+			isFeedbackDisplayed = false;
+			feedbackTimer = 0;
+		}
+
+	}	else if (hasDeadline)
 	{
 		Uint32 timeDiff = SDL_GetTicks() - deadlineTimer;
 		
@@ -444,7 +470,11 @@ void Game::update()
 void Game::render()
 {
 	SDL_RenderClear(renderer);
-	if (trialPhase == 1)
+
+	if (isFeedbackDisplayed) {
+		SDL_RenderCopy(renderer, feedbackTex, NULL, &feedbackDestR);
+	}
+	else if (trialPhase == 1)
 	{
 		SDL_RenderCopy(renderer, redBoxTex, NULL, &redBoxDestR);
 	}

@@ -41,6 +41,7 @@ private:
 	Uint32 reaction_time = 0;
 
 	Uint32 deadlineTimer = 0;
+	Uint32 feedbackTimer = 0;
 
 	std::vector<Trial> shuffledTrials;
 
@@ -57,6 +58,7 @@ private:
 	bool hasDeadline = false;
 	bool hasFeedback = true;
 	int trialCount = 1;
+	bool isFeedbackDisplayed = false;
 
 	bool isPracticeBlock = true;
 	int practiceBlockSize = 4;
