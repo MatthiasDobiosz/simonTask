@@ -25,9 +25,12 @@ struct TrialInformationData {
 SDL_Texture* redBoxTex;
 SDL_Rect redBoxDestR;
 
-SDL_Texture* blackBoxTex;
-SDL_Rect blackBoxLeftDestR;
-SDL_Rect blackBoxRightDestR;
+SDL_Texture* backgroundTex;
+SDL_Rect backgroundDestr;
+
+SDL_Texture* whiteBoxTex;
+SDL_Rect whiteBoxLeftDestR;
+SDL_Rect whiteBoxRightDestR;
 
 SDL_Texture* arrowLeftTex;
 SDL_Rect arrowLeftDestR;
@@ -175,39 +178,49 @@ void Game::saveData()
 
 void Game::init(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
 {
-	redBoxDestR.h = 240;
-	redBoxDestR.w = 480;
-	redBoxDestR.x = 720;
-	redBoxDestR.y = 800;
+	redBoxDestR.h = 220;
+	redBoxDestR.w = 439;
+	redBoxDestR.x = 740;
+	redBoxDestR.y = 810;
 
-	blackBoxLeftDestR.h = 240;
-	blackBoxLeftDestR.w = 480;
-	blackBoxLeftDestR.x = 0;
-	blackBoxLeftDestR.y = 0;
+	whiteBoxLeftDestR.h = 220;
+	whiteBoxLeftDestR.w = 439;
+	whiteBoxLeftDestR.x = 0;
+	whiteBoxLeftDestR.y = 0;
 
-	blackBoxRightDestR.h = 240;
-	blackBoxRightDestR.w = 480;
-	blackBoxRightDestR.x = 1440;
-	blackBoxRightDestR.y = 0;
+	whiteBoxRightDestR.h = 220;
+	whiteBoxRightDestR.w = 439;
+	whiteBoxRightDestR.x = 1479;
+	whiteBoxRightDestR.y = 0;
 
-	arrowLeftDestR.h = 150;
+	arrowLeftDestR.h = 324;
 	arrowLeftDestR.w = 300;
-	arrowLeftDestR.x = 200;
-	arrowLeftDestR.y = 500;
+	arrowLeftDestR.x = 175;
+	arrowLeftDestR.y = 450;
 
-	arrowRightDestR.h = 150;
+	arrowRightDestR.h = 324;
 	arrowRightDestR.w = 300;
-	arrowRightDestR.x = 1420;
-	arrowRightDestR.y = 500;
+	arrowRightDestR.x = 1421;
+	arrowRightDestR.y = 450;
 
 	feedbackDestR.h = 1080;
 	feedbackDestR.w = 1920;
 	feedbackDestR.x = 0;
 	feedbackDestR.y = 0;
 
+	backgroundDestr.h = 1080;
+	backgroundDestr.w = 1920;
+	backgroundDestr.x = 0;
+	backgroundDestr.y = 0;
+
+	if (experimentalCondition == 0) {
+		// Add Latency
+	}
+
 	generateAndShuffleMatrix(getNextMultipleOf16(practiceBlockSize));
 
-	mouseDataFile.open("data/mouse_data.txt", std::ios::app);
+	std::string mouseDataFilePath = "data/mouse_data_" + std::to_string(participantId) + ".txt";
+	mouseDataFile.open(mouseDataFilePath, std::ios::app);
 
 	if (!mouseDataFile) {
 		std::cerr << "Error: Could not open mouse data file for writing.\n";
@@ -215,7 +228,8 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 
 	mouseDataFile << "timedifference," << "trialnumber," << "blocknumber," << "xpos," << "ypos" << std::endl;
 
-	trialDataFile.open("data/trial_data.txt", std::ios::app);
+	std::string trialDataFilePath = "data/trial_data_" + std::to_string(participantId) + ".txt";
+	trialDataFile.open(trialDataFilePath, std::ios::app);
 
 	if (!trialDataFile) {
 		std::cerr << "Error: Could not open trial trial file for writing.\n";
@@ -256,9 +270,9 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	redBoxTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceRedBox);
 	SDL_FreeSurface(tmpSurfaceRedBox);
 
-	SDL_Surface* tmpSurfaceBlackBox = IMG_Load("assets/Blackbox.png");
-	blackBoxTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceBlackBox);
-	SDL_FreeSurface(tmpSurfaceBlackBox);
+	SDL_Surface* tmpSurfaceWhiteBox = IMG_Load("assets/Whitebox.png");
+	whiteBoxTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceWhiteBox);
+	SDL_FreeSurface(tmpSurfaceWhiteBox);
 
 	SDL_Surface* tmpSurfaceArrowLeft = IMG_Load("assets/ArrowLeft.png");
 	arrowLeftTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceArrowLeft);
@@ -271,6 +285,10 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	SDL_Surface* tmpSurfaceFeedback = IMG_Load("assets/feedback.png");
 	feedbackTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceFeedback);
 	SDL_FreeSurface(tmpSurfaceFeedback);
+
+	SDL_Surface* tmpSurfaceBackground = IMG_Load("assets/Blackbox.png");
+	backgroundTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceBackground);
+	SDL_FreeSurface(tmpSurfaceBackground);
 }
 
 void Game::generateAndShuffleMatrix(int matrixBlockSize)
@@ -322,6 +340,10 @@ void Game::advanceTrial(int success)
 		if (trialCount > experimentalBlockSize)
 		{	
 			experimentalBlockCount++;
+
+			if (experimentalCondition == 1 && experimentalBlockCount == 3) {
+				// ADD LATENCY
+			}
 
 			if (experimentalBlockCount > experimentalBlockNum)
 			{
@@ -416,7 +438,7 @@ void Game::handleEvents()
 				}
 
 				// user is in responds box
-				if (isPointInRect(event.button.x, event.button.y, blackBoxLeftDestR))
+				if (isPointInRect(event.button.x, event.button.y, whiteBoxLeftDestR))
 				{
 					if (isCorrectResponse("left", currentTrial))
 					{
@@ -429,7 +451,7 @@ void Game::handleEvents()
 					}
 				
 				}
-				if (isPointInRect(event.button.x, event.button.y, blackBoxRightDestR))
+				if (isPointInRect(event.button.x, event.button.y, whiteBoxRightDestR))
 				{
 					if (isCorrectResponse("right", currentTrial))
 					{
@@ -477,6 +499,8 @@ void Game::render()
 {
 	SDL_RenderClear(renderer);
 
+	SDL_RenderCopy(renderer, backgroundTex, NULL, &backgroundDestr);
+
 	if (isFeedbackDisplayed) {
 		SDL_RenderCopy(renderer, feedbackTex, NULL, &feedbackDestR);
 	}
@@ -485,8 +509,8 @@ void Game::render()
 		SDL_RenderCopy(renderer, redBoxTex, NULL, &redBoxDestR);
 	}
 	else if (trialPhase == 2) {
-		SDL_RenderCopy(renderer, blackBoxTex, NULL, &blackBoxLeftDestR);
-		SDL_RenderCopy(renderer, blackBoxTex, NULL, &blackBoxRightDestR);
+		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxLeftDestR);
+		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxRightDestR);
 	}
 	else {
 		if (currentTrial.stimulusPosition)
@@ -509,8 +533,8 @@ void Game::render()
 			}
 		}
 
-		SDL_RenderCopy(renderer, blackBoxTex, NULL, &blackBoxLeftDestR);
-		SDL_RenderCopy(renderer, blackBoxTex, NULL, &blackBoxRightDestR);
+		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxLeftDestR);
+		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxRightDestR);
 	}
 	SDL_RenderPresent(renderer);
 }

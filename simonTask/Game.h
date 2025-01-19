@@ -34,6 +34,11 @@ public:
 	bool running() { return isRunning; }
 
 private:
+	// Change These per participant
+	// condition: 0 = with latency in 1 & 2 Block; 1 = with latency in 3 & 4 Block
+	int experimentalCondition = 0;
+	int participantId = 1;
+
 	// interval for saving mouse data 
 	// 10ms = 100Hz
 	int sampling_interval_ms = 10;
