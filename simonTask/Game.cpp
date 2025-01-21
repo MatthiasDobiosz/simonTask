@@ -261,7 +261,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 		flags = SDL_WINDOW_FULLSCREEN;
 	}
 
-	if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
+	if(SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
 		std::cout << "Subsystems initialized..." << std::endl;
 
@@ -272,7 +272,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 			std::cout << "Window created!" << std::endl;
 		}
 
-		renderer = SDL_CreateRenderer(window, -1, 0);
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 		if (renderer)
 		{
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -333,8 +333,6 @@ void Game::advanceTrial(int success)
 			trial_information_data.push_back({ trialCount, experimentalBlockCount, success, reaction_time, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition });
 		}
 		trial_information_data.push_back({ trialCount, experimentalBlockCount, success, reaction_time, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition, previousTrial.currentCongruent, previousTrial.stimulusDirection, previousTrial.stimulusPosition });
-
-		reaction_time = 0;
 	}
 
 	deadlineTimer = SDL_GetTicks();
@@ -343,7 +341,6 @@ void Game::advanceTrial(int success)
 
 	if (isPracticeBlock) 
 	{
-		std::cout << trialCount << std::endl;
 		if (success == 0 && hasFeedback) {
 			isFeedbackDisplayed = true;
 		}
@@ -462,6 +459,7 @@ void Game::handleEvents()
 					trialPhase = 3;
 					deadlineTimer = SDL_GetTicks();
 					last_sample_time = SDL_GetTicks();
+					reaction_time = 0;
 
 					if (!isPracticeBlock) {
 						SDL_GetMouseState(&event.motion.x, &event.motion.y);
