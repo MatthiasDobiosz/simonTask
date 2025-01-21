@@ -30,6 +30,7 @@ public:
 	void render();
 	void clean();
 	void saveData();
+	void sampleMouseData();
 
 	bool running() { return isRunning; }
 
@@ -38,10 +39,13 @@ private:
 	// condition: 0 = with latency in 1 & 2 Block; 1 = with latency in 3 & 4 Block
 	int experimentalCondition = 0;
 	int participantId = 1;
+	int latency = 60;
+	bool gamePaused = false;
+	bool startRealScreen = false;
 
 	// interval for saving mouse data 
 	// 10ms = 100Hz
-	int sampling_interval_ms = 10;
+	int sampling_interval_ms = 5;
 	Uint32 last_sample_time = -1;
 	Uint32 reaction_time = 0;
 
@@ -52,6 +56,9 @@ private:
 
 	// track the upwards movement
 	int continousUpwardsMovement = 0;
+	int initialY = -1;
+	Uint32 initialTime = 0;
+	bool upwardDetected = false;
 
 	// track the phase for a single trial
 	int trialPhase = 1;
@@ -66,15 +73,17 @@ private:
 	bool isFeedbackDisplayed = false;
 
 	bool isPracticeBlock = true;
-	int practiceBlockSize = 4;
-	int practiceBockDeadlineCutoff = 2;
-	int practiceBlockFeedbackCutoff = 3;
+	int practiceBlockSize = 40;
+	int practiceBockDeadlineCutoff = 10;
+	int practiceBlockFeedbackCutoff = 20;
 
+	// which block is it currently
 	int experimentalBlockCount = 1;
-	int experimentalBlockSize = 10;
-	int experimentalBlockNum = 1;
+	// number of trials per block
+	int experimentalBlockSize = 160;
+	// how many blocks are the max
+	int experimentalBlockNum = 4;
 
-	int lastSave = 1;
 	std::ofstream mouseDataFile;	
 	std::ofstream trialDataFile;
 

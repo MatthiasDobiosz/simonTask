@@ -41,6 +41,12 @@ SDL_Rect arrowRightDestR;
 SDL_Texture* feedbackTex;
 SDL_Rect feedbackDestR;
 
+SDL_Texture* pauseScreenTex;
+SDL_Rect pauseScreenDestR;
+
+SDL_Texture* startRealTex;
+SDL_Rect startRealDestR;
+
 std::vector<MouseData> mouse_data;
 
 std::vector<TrialInformationData> trial_information_data;
@@ -213,8 +219,25 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	backgroundDestr.x = 0;
 	backgroundDestr.y = 0;
 
+	pauseScreenDestR.h = 1080;
+	pauseScreenDestR.w = 1920;
+	pauseScreenDestR.x = 0;
+	pauseScreenDestR.y = 0;
+
+	startRealDestR.h = 1080;
+	startRealDestR.w = 1920;
+	startRealDestR.x = 0;
+	startRealDestR.y = 0;
+
+
 	if (experimentalCondition == 0) {
-		// Add Latency
+		std::string command = "echo \"" + std::to_string(0) + " " +
+			std::to_string(0) + " " +
+			std::to_string(latency) + " " +
+			std::to_string(latency) +
+			"\" > " + "/tmp/DelayDaemon";
+
+		std::system(command.c_str());
 	}
 
 	generateAndShuffleMatrix(getNextMultipleOf16(practiceBlockSize));
@@ -243,11 +266,11 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 		flags = SDL_WINDOW_FULLSCREEN;
 	}
 
-	if(SDL_Init(SDL_INIT_VIDEO) == 0) 
+	if(SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
 		std::cout << "Subsystems initialized..." << std::endl;
 
-    		SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+    	//SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 		window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 		if (window)
 		{
@@ -290,6 +313,14 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	SDL_Surface* tmpSurfaceBackground = IMG_Load("assets/Blackbox.png");
 	backgroundTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceBackground);
 	SDL_FreeSurface(tmpSurfaceBackground);
+	
+	SDL_Surface* tmpSurfacePauseScreen = IMG_Load("assets/PauseScreen.png");
+	pauseScreenTex = SDL_CreateTextureFromSurface(renderer, tmpSurfacePauseScreen);
+	SDL_FreeSurface(tmpSurfacePauseScreen);
+
+	SDL_Surface* tmpSurfaceStartReal = IMG_Load("assets/startReal.png");
+	startRealTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceStartReal);
+	SDL_FreeSurface(tmpSurfaceStartReal);
 }
 
 void Game::generateAndShuffleMatrix(int matrixBlockSize)
@@ -304,6 +335,8 @@ void Game::generateAndShuffleMatrix(int matrixBlockSize)
 void Game::advanceTrial(int success)
 {
 	if (!isPracticeBlock) {
+		reaction_time += SDL_GetTicks() - last_sample_time;
+
 		if (currentTrial.isFirst) {
 			trial_information_data.push_back({ trialCount, experimentalBlockCount, success, reaction_time, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition, currentTrial.currentCongruent, currentTrial.stimulusDirection, currentTrial.stimulusPosition });
 		}
@@ -335,26 +368,43 @@ void Game::advanceTrial(int success)
 			trialCount = 1;
 			isPracticeBlock = false;
 			generateAndShuffleMatrix(getNextMultipleOf16(experimentalBlockSize));
+			startRealScreen = true;
 		}
 	}
 	else {
+		std::cout << trialCount << std::endl;
 		if (trialCount > experimentalBlockSize)
 		{	
 			experimentalBlockCount++;
 
-			if (experimentalCondition == 1 && experimentalBlockCount == 3) {
-				// ADD LATENCY
+
+
+			if (experimentalBlockCount == 3) {
+				if (experimentalCondition == 1) {
+					std::string command = "echo \"" + std::to_string(0) + " " +
+						std::to_string(0) + " " +
+						std::to_string(latency) + " " +
+						std::to_string(latency) +
+						"\" > " + "/tmp/DelayDaemon";
+
+					std::system(command.c_str());
+				}
+				else {
+					std::string command = "echo \" 0 0 0 0 \" /tmp/DelayDaemon";
+					std::system(command.c_str());
+				}
 			}
+
+			saveData();
 
 			if (experimentalBlockCount > experimentalBlockNum)
 			{
-				saveData();
-				lastSave = 0;
 				isRunning = false;
 			}
 			else {
 				trialCount = 1;
 				generateAndShuffleMatrix(getNextMultipleOf16(experimentalBlockSize));
+				gamePaused = true;
 			}
 		}
 	}
@@ -363,14 +413,6 @@ void Game::advanceTrial(int success)
 		previousTrial = currentTrial;
 		int currentTrialIdx = trialCount - 1;
 		currentTrial = shuffledTrials[currentTrialIdx];
-		reaction_time = 0;
-
-		lastSave++;
-
-		if (lastSave == 10) {
-			saveData();
-			lastSave = 0;
-		}
 	}
 
 	// potentially: reset mouse position when trial fails/succeeds
@@ -381,26 +423,76 @@ void Game::handleEvents()
 {
 	SDL_Event event;
 	SDL_PollEvent(&event);
+	sampleMouseData();
 
 	switch (event.type) {
 		case SDL_QUIT:
 			isRunning = false;
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && !isFeedbackDisplayed)
+			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && !isFeedbackDisplayed && !gamePaused && !startRealScreen)
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
 			}
-
+		case SDL_KEYDOWN:
+			if (event.key.keysym.sym == SDLK_SPACE) {
+				if (gamePaused || startRealScreen) {
+					deadlineTimer = SDL_GetTicks();
+					reaction_time = 0;
+					gamePaused = false;
+					startRealScreen = false;
+				}
+			}
+			break;
 		case SDL_MOUSEMOTION:
-			if (isFeedbackDisplayed) {
+			if (isFeedbackDisplayed || gamePaused) {
 				break;
 			}
 
 			// handle upwards movement when in Phase 2 
 			if (trialPhase == 2)
 			{
+
+				int currentY = event.motion.y; // Current mouse Y position
+				Uint32 currentTime = SDL_GetTicks(); // Current time
+
+				// Initialize tracking variables
+				if (initialY == -1) {
+					initialY = currentY;
+					initialTime = currentTime;
+				}
+
+				// Check if upward movement threshold is reached
+				int deltaY = currentY - initialY; // Movement in the Y direction
+				Uint32 deltaTime = currentTime - initialTime;
+
+				if (!upwardDetected && deltaY <= -50 && deltaTime <= 250) {
+					upwardDetected = true;
+					trialPhase = 3;
+					deadlineTimer = SDL_GetTicks();
+					last_sample_time = SDL_GetTicks();
+					std::cout << "reset" << std::endl;
+					reaction_time = 0;
+
+					if (!isPracticeBlock) {
+						SDL_GetMouseState(&event.motion.x, &event.motion.y);
+
+						mouse_data.push_back({ trialCount, experimentalBlockCount, 0, event.motion.x, event.motion.y });
+					}
+
+					// Reset the tracking variables to detect again later
+					initialY = -1;
+					initialTime = 0;
+				}
+
+				// Reset if time window expires without sufficient movement
+				if (deltaTime > 250) {
+					initialY = -1;
+					initialTime = 0;
+				}
+
+				/**
 				if (event.motion.yrel < -3)
 				{
 					if (continousUpwardsMovement == 0)
@@ -423,21 +515,13 @@ void Game::handleEvents()
 				else {
 					continousUpwardsMovement = 0;
 				}
+				*/
 			}
 			// handle tracking of mouse data in Phase 3
 			else if (trialPhase == 3) {
-				Uint32 currentTime = SDL_GetTicks();
-				Uint32 timeDiff = currentTime - last_sample_time;
-				reaction_time += timeDiff;
-
-				if ((timeDiff >= sampling_interval_ms) && !isPracticeBlock) {
-					SDL_GetMouseState(&event.motion.x, &event.motion.y);
-
-					mouse_data.push_back({ trialCount, experimentalBlockCount, timeDiff, event.motion.x, event.motion.y });
-
-					last_sample_time = currentTime;
+				if (upwardDetected) {
+					upwardDetected = false;
 				}
-
 				// user is in responds box
 				if (isPointInRect(event.button.x, event.button.y, whiteBoxLeftDestR))
 				{
@@ -470,6 +554,28 @@ void Game::handleEvents()
 	}
 }
 
+void Game::sampleMouseData()
+{
+	if (trialPhase == 3 && !isPracticeBlock) {
+		// Timer-based sampling
+		Uint32 currentTime = SDL_GetTicks();
+		Uint32 timeDiff = currentTime - last_sample_time;
+
+		if (timeDiff >= sampling_interval_ms) {
+			// Update the last sample time
+			reaction_time += timeDiff;
+
+			last_sample_time = currentTime;
+
+			// Get mouse position
+			int mouseX, mouseY;
+			SDL_GetMouseState(&mouseX, &mouseY);
+
+			mouse_data.push_back({ trialCount, experimentalBlockCount, timeDiff, mouseX, mouseY });
+		}
+	}
+}
+
 void Game::update()
 {
 	if (isFeedbackDisplayed)
@@ -480,17 +586,20 @@ void Game::update()
 		}
 		Uint32 timeDiff = SDL_GetTicks() - feedbackTimer;
 
-		if (timeDiff > 500) {
+		if (timeDiff > 1000) {
 			isFeedbackDisplayed = false;
 			feedbackTimer = 0;
 		}
 
-	}	else if (hasDeadline)
+	}	else if (hasDeadline && !gamePaused && !startRealScreen)
 	{
+		sampleMouseData();
 		Uint32 timeDiff = SDL_GetTicks() - deadlineTimer;
 		
 		if (trialPhase == 1 && timeDiff > phase1Deadline || trialPhase == 2 && timeDiff > phase2Deadline || trialPhase == 3 && timeDiff > phase3Deadline)
 		{
+			last_sample_time = SDL_GetTicks();
+			reaction_time = 0;
 			advanceTrial(0);
 		}
 	}
@@ -498,12 +607,19 @@ void Game::update()
 
 void Game::render()
 {
+	sampleMouseData();
 	SDL_RenderClear(renderer);
 
 	SDL_RenderCopy(renderer, backgroundTex, NULL, &backgroundDestr);
 
 	if (isFeedbackDisplayed) {
 		SDL_RenderCopy(renderer, feedbackTex, NULL, &feedbackDestR);
+	}
+	else if (gamePaused) {
+		SDL_RenderCopy(renderer, pauseScreenTex, NULL, &pauseScreenDestR);
+	}
+	else if (startRealScreen) {
+		SDL_RenderCopy(renderer, startRealTex, NULL, &startRealDestR);
 	}
 	else if (trialPhase == 1)
 	{
@@ -545,7 +661,9 @@ void Game::clean()
 	//TODO: Save data at the end
 
 	//printMatrix(shuffledTrials);
-
+	std::string command = "echo \" 0 0 0 0 \" /tmp/DelayDaemon";
+	std::system(command.c_str());
+	
 	if (mouseDataFile.is_open()) {
 		mouseDataFile.close(); // Close the file
 		std::cout << "Mousedata file closed.\n";

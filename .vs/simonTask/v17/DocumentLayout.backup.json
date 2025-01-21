@@ -26,11 +26,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Game.h",
+              "DocumentMoniker": "C:\\Users\\Matthias\\source\\repos\\simonTask\\simonTask\\Game.h",
+              "RelativeDocumentMoniker": "simonTask\\Game.h",
+              "ToolTip": "C:\\Users\\Matthias\\source\\repos\\simonTask\\simonTask\\Game.h",
+              "RelativeToolTip": "simonTask\\Game.h",
+              "ViewState": "AgIAACIAAAAAAAAAAAAhwCsAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-01-05T17:44:10.046Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -52,22 +65,9 @@
               "RelativeDocumentMoniker": "simonTask\\Game.cpp",
               "ToolTip": "C:\\Users\\Matthias\\source\\repos\\simonTask\\simonTask\\Game.cpp",
               "RelativeToolTip": "simonTask\\Game.cpp",
-              "ViewState": "AgIAAN4AAAAAAAAAAAAAAOcAAAA2AAAAAAAAAA==",
+              "ViewState": "AgIAAGECAAAAAAAAAAAAADECAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-05T17:48:32.136Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Game.h",
-              "DocumentMoniker": "C:\\Users\\Matthias\\source\\repos\\simonTask\\simonTask\\Game.h",
-              "RelativeDocumentMoniker": "simonTask\\Game.h",
-              "ToolTip": "C:\\Users\\Matthias\\source\\repos\\simonTask\\simonTask\\Game.h",
-              "RelativeToolTip": "simonTask\\Game.h",
-              "ViewState": "AgIAADkAAAAAAAAAAAAAAE0AAAAcAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-01-05T17:44:10.046Z",
               "EditorCaption": ""
             },
             {
@@ -78,7 +78,7 @@
               "RelativeDocumentMoniker": "simonTask\\main.cpp",
               "ToolTip": "C:\\Users\\Matthias\\source\\repos\\simonTask\\simonTask\\main.cpp",
               "RelativeToolTip": "simonTask\\main.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAOAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-05T17:16:04.778Z",
               "EditorCaption": ""
