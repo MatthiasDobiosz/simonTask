@@ -44,6 +44,9 @@ SDL_Rect feedbackDestR;
 SDL_Texture* pauseScreenTex;
 SDL_Rect pauseScreenDestR;
 
+SDL_Texture* startRealTex;
+SDL_Rect startRealDestR;
+
 std::vector<MouseData> mouse_data;
 
 std::vector<TrialInformationData> trial_information_data;
@@ -221,18 +224,20 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	pauseScreenDestR.x = 0;
 	pauseScreenDestR.y = 0;
 
+	startRealDestR.h = 1080;
+	startRealDestR.w = 1920;
+	startRealDestR.x = 0;
+	startRealDestR.y = 0;
+
 
 	if (experimentalCondition == 0) {
-
-		/**
-		std::string command = "echo \"" + std::to_string(latency) + " " +
-			std::to_string(latency) + " " +
+		std::string command = "echo \"" + std::to_string(0) + " " +
+			std::to_string(0) + " " +
 			std::to_string(latency) + " " +
 			std::to_string(latency) +
-			"\" > " + "tmp/delayDaemon";
+			"\" > " + "/tmp/DelayDaemon";
 
 		std::system(command.c_str());
-		*/
 	}
 
 	generateAndShuffleMatrix(getNextMultipleOf16(practiceBlockSize));
@@ -313,6 +318,9 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	pauseScreenTex = SDL_CreateTextureFromSurface(renderer, tmpSurfacePauseScreen);
 	SDL_FreeSurface(tmpSurfacePauseScreen);
 
+	SDL_Surface* tmpSurfaceStartReal = IMG_Load("assets/startReal.png");
+	startRealTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceStartReal);
+	SDL_FreeSurface(tmpSurfaceStartReal);
 }
 
 void Game::generateAndShuffleMatrix(int matrixBlockSize)
@@ -360,9 +368,11 @@ void Game::advanceTrial(int success)
 			trialCount = 1;
 			isPracticeBlock = false;
 			generateAndShuffleMatrix(getNextMultipleOf16(experimentalBlockSize));
+			startRealScreen = true;
 		}
 	}
 	else {
+		std::cout << trialCount << std::endl;
 		if (trialCount > experimentalBlockSize)
 		{	
 			experimentalBlockCount++;
@@ -370,21 +380,19 @@ void Game::advanceTrial(int success)
 
 
 			if (experimentalBlockCount == 3) {
-				/**
 				if (experimentalCondition == 1) {
-					std::string command = "echo \"" + std::to_string(latency) + " " +
-						std::to_string(latency) + " " +
+					std::string command = "echo \"" + std::to_string(0) + " " +
+						std::to_string(0) + " " +
 						std::to_string(latency) + " " +
 						std::to_string(latency) +
-						"\" > " + "tmp/delayDaemon";
+						"\" > " + "/tmp/DelayDaemon";
 
 					std::system(command.c_str());
 				}
 				else {
-					std::string command = "echo \" 0 0 0 0 \" tmp/delayDaemon";
+					std::string command = "echo \" 0 0 0 0 \" /tmp/DelayDaemon";
 					std::system(command.c_str());
 				}
-				*/
 			}
 
 			saveData();
@@ -422,14 +430,19 @@ void Game::handleEvents()
 			isRunning = false;
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && !isFeedbackDisplayed && !gamePaused)
+			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && !isFeedbackDisplayed && !gamePaused && !startRealScreen)
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
 			}
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_SPACE) {
-				gamePaused = false;
+				if (gamePaused || startRealScreen) {
+					deadlineTimer = SDL_GetTicks();
+					reaction_time = 0;
+					gamePaused = false;
+					startRealScreen = false;
+				}
 			}
 			break;
 		case SDL_MOUSEMOTION:
@@ -459,6 +472,7 @@ void Game::handleEvents()
 					trialPhase = 3;
 					deadlineTimer = SDL_GetTicks();
 					last_sample_time = SDL_GetTicks();
+					std::cout << "reset" << std::endl;
 					reaction_time = 0;
 
 					if (!isPracticeBlock) {
@@ -572,18 +586,20 @@ void Game::update()
 		}
 		Uint32 timeDiff = SDL_GetTicks() - feedbackTimer;
 
-		if (timeDiff > 500) {
+		if (timeDiff > 1000) {
 			isFeedbackDisplayed = false;
 			feedbackTimer = 0;
 		}
 
-	}	else if (hasDeadline && !gamePaused)
+	}	else if (hasDeadline && !gamePaused && !startRealScreen)
 	{
 		sampleMouseData();
 		Uint32 timeDiff = SDL_GetTicks() - deadlineTimer;
 		
 		if (trialPhase == 1 && timeDiff > phase1Deadline || trialPhase == 2 && timeDiff > phase2Deadline || trialPhase == 3 && timeDiff > phase3Deadline)
 		{
+			last_sample_time = SDL_GetTicks();
+			reaction_time = 0;
 			advanceTrial(0);
 		}
 	}
@@ -601,6 +617,9 @@ void Game::render()
 	}
 	else if (gamePaused) {
 		SDL_RenderCopy(renderer, pauseScreenTex, NULL, &pauseScreenDestR);
+	}
+	else if (startRealScreen) {
+		SDL_RenderCopy(renderer, startRealTex, NULL, &startRealDestR);
 	}
 	else if (trialPhase == 1)
 	{
@@ -642,10 +661,9 @@ void Game::clean()
 	//TODO: Save data at the end
 
 	//printMatrix(shuffledTrials);
-	/**
-	std::string command = "echo \" 0 0 0 0 \" tmp/delayDaemon";
+	std::string command = "echo \" 0 0 0 0 \" /tmp/DelayDaemon";
 	std::system(command.c_str());
-	*/
+	
 	if (mouseDataFile.is_open()) {
 		mouseDataFile.close(); // Close the file
 		std::cout << "Mousedata file closed.\n";

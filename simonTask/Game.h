@@ -1,6 +1,6 @@
 #pragma once
-#include "SDL.h"
-#include "SDL_image.h"	
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"	
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -39,8 +39,9 @@ private:
 	// condition: 0 = with latency in 1 & 2 Block; 1 = with latency in 3 & 4 Block
 	int experimentalCondition = 0;
 	int participantId = 1;
-	int latency = 80;
+	int latency = 60;
 	bool gamePaused = false;
+	bool startRealScreen = false;
 
 	// interval for saving mouse data 
 	// 10ms = 100Hz
@@ -72,14 +73,14 @@ private:
 	bool isFeedbackDisplayed = false;
 
 	bool isPracticeBlock = true;
-	int practiceBlockSize = 4;
-	int practiceBockDeadlineCutoff = 2;
-	int practiceBlockFeedbackCutoff = 3;
+	int practiceBlockSize = 40;
+	int practiceBockDeadlineCutoff = 10;
+	int practiceBlockFeedbackCutoff = 20;
 
 	// which block is it currently
 	int experimentalBlockCount = 1;
 	// number of trials per block
-	int experimentalBlockSize = 10;
+	int experimentalBlockSize = 160;
 	// how many blocks are the max
 	int experimentalBlockNum = 4;
 
