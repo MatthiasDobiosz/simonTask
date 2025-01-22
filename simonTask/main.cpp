@@ -6,7 +6,7 @@ int main(int argc, char* argv[])
 {
 	game = new Game();
 
-	game->init("Task", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, false);
+	game->init("Task", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, true);
 
 	while (game->running()) {
 		game->handleEvents();

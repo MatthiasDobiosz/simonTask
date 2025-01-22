@@ -390,7 +390,7 @@ void Game::advanceTrial(int success)
 					std::system(command.c_str());
 				}
 				else {
-					std::string command = "echo \" 0 0 0 0 \" /tmp/DelayDaemon";
+					std::string command = "echo \"0 0 0 0\" > /tmp/DelayDaemon";
 					std::system(command.c_str());
 				}
 			}
@@ -661,7 +661,7 @@ void Game::clean()
 	//TODO: Save data at the end
 
 	//printMatrix(shuffledTrials);
-	std::string command = "echo \" 0 0 0 0 \" /tmp/DelayDaemon";
+	std::string command = "echo \"0 0 0 0\" > /tmp/DelayDaemon";
 	std::system(command.c_str());
 	
 	if (mouseDataFile.is_open()) {

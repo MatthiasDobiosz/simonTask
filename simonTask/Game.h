@@ -37,9 +37,9 @@ public:
 private:
 	// Change These per participant
 	// condition: 0 = with latency in 1 & 2 Block; 1 = with latency in 3 & 4 Block
-	int experimentalCondition = 0;
-	int participantId = 1;
-	int latency = 60;
+	int experimentalCondition = 1;
+	int participantId = 3;
+	int latency = 120;
 	bool gamePaused = false;
 	bool startRealScreen = false;
 
