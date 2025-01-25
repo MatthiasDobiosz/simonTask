@@ -40,7 +40,6 @@ SDL_Rect fullscreenDestR;
 
 SDL_Texture* feedbackTex;
 SDL_Texture* backgroundTex;
-SDL_Texture* pauseScreenTex;
 SDL_Texture* startRealTex;
 
 SDL_Texture* instructionStartTex;
@@ -307,10 +306,6 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	backgroundTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceBackground);
 	SDL_FreeSurface(tmpSurfaceBackground);
 	
-	SDL_Surface* tmpSurfacePauseScreen = IMG_Load("assets/PauseScreen.png");
-	pauseScreenTex = SDL_CreateTextureFromSurface(renderer, tmpSurfacePauseScreen);
-	SDL_FreeSurface(tmpSurfacePauseScreen);
-
 	SDL_Surface* tmpSurfaceStartReal = IMG_Load("assets/startReal.png");
 	startRealTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceStartReal);
 	SDL_FreeSurface(tmpSurfaceStartReal);

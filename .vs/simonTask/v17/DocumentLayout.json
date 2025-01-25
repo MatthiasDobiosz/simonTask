@@ -42,8 +42,7 @@
               "RelativeToolTip": "simonTask\\Game.h",
               "ViewState": "AgIAAEUAAAAAAAAAAAAAAFYAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-01-05T17:44:10.046Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-05T17:44:10.046Z"
             },
             {
               "$type": "Document",
@@ -65,7 +64,7 @@
               "RelativeDocumentMoniker": "simonTask\\Game.cpp",
               "ToolTip": "C:\\Users\\Matthias\\source\\repos\\simonTask\\simonTask\\Game.cpp",
               "RelativeToolTip": "simonTask\\Game.cpp",
-              "ViewState": "AgIAALEBAAAAAAAAAAAtwHEBAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAKcBAAAAAAAAAAAtwK0BAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-05T17:48:32.136Z",
               "EditorCaption": ""
@@ -80,8 +79,7 @@
               "RelativeToolTip": "simonTask\\main.cpp",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-01-05T17:16:04.778Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-05T17:16:04.778Z"
             }
           ]
         }
