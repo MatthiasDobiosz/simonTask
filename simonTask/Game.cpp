@@ -432,7 +432,7 @@ void Game::advanceTrial(int success)
 
 			if (experimentalBlockCount > experimentalBlockNum)
 			{
-				isRunning = false;
+				gameFinished = true;
 			}
 			else {
 				trialCount = 1;
@@ -442,7 +442,7 @@ void Game::advanceTrial(int success)
 		}
 	}
 
-	if (isRunning) {
+	if (!gameFinished) {
 		previousTrial = currentTrial;
 		int currentTrialIdx = trialCount - 1;
 		currentTrial = shuffledTrials[currentTrialIdx];
@@ -458,21 +458,28 @@ void Game::handleEvents()
 	SDL_PollEvent(&event);
 	sampleMouseData();
 
-	bool realTrial = !isFeedbackDisplayed && !gamePaused && !startRealScreen && !instructions;
+	bool realTrial = !isFeedbackDisplayed && !gamePaused && !startRealScreen && !instructions  && !gameFinished;
 
 	switch (event.type) {
 		case SDL_QUIT:
 			isRunning = false;
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && realTrial)
+			if (!realTrial) {
+				break;
+			}
+
+			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1)
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
 			}
 		case SDL_KEYDOWN:
+			if (gameFinished && event.key.keysym.sym == SDLK_ESCAPE) {
+				isRunning = false;
+			}
+
 			if (event.key.keysym.sym == SDLK_SPACE) {
-				
 				if (instructions && instructionsSlide == 5) {
 					instructions = false;
 				} else if (gamePaused || startRealScreen) {
@@ -608,7 +615,7 @@ void Game::handleEvents()
 
 void Game::sampleMouseData()
 {
-	if (trialPhase == 3 && !isPracticeBlock) {
+	if (trialPhase == 3 && !isPracticeBlock && !gameFinished && !gamePaused && !instructions) {
 		// Timer-based sampling
 		Uint32 currentTime = SDL_GetTicks();
 		Uint32 timeDiff = currentTime - last_sample_time;
@@ -643,7 +650,7 @@ void Game::update()
 			feedbackTimer = 0;
 		}
 
-	}	else if (hasDeadline && !gamePaused && !startRealScreen && !instructions)
+	}	else if (hasDeadline && !gamePaused && !startRealScreen && !instructions && !gameFinished)
 	{
 		sampleMouseData();
 		Uint32 timeDiff = SDL_GetTicks() - deadlineTimer;
@@ -662,8 +669,10 @@ void Game::render()
 	sampleMouseData();
 	SDL_RenderClear(renderer);
 
-	if (instructions) {
-
+	if (gameFinished) {
+		SDL_RenderCopy(renderer, FinishedTex, NULL, &fullscreenDestR);
+	}
+	else if (instructions) {
 		switch (instructionsSlide) {
 			case 1:
 				SDL_RenderCopy(renderer, instructionStartTex, NULL, &fullscreenDestR);
@@ -692,7 +701,17 @@ void Game::render()
 			SDL_RenderCopy(renderer, feedbackTex, NULL, &fullscreenDestR);
 		}
 		else if (gamePaused) {
-			SDL_RenderCopy(renderer, pauseScreenTex, NULL, &fullscreenDestR);
+			switch (experimentalBlockCount) {
+				case 2:
+					SDL_RenderCopy(renderer, Block1FinishedTex, NULL, &fullscreenDestR);
+					break;
+				case 3:
+					SDL_RenderCopy(renderer, Block2FinishedTex, NULL, &fullscreenDestR);
+					break;
+				case 4:
+					SDL_RenderCopy(renderer, Block3FinishedTex, NULL, &fullscreenDestR);
+					break;
+			}
 		}
 		else if (startRealScreen) {
 			SDL_RenderCopy(renderer, startRealTex, NULL, &fullscreenDestR);

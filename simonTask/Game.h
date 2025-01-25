@@ -73,16 +73,18 @@ private:
 	bool isFeedbackDisplayed = false;
 
 	bool isPracticeBlock = true;
-	int practiceBlockSize = 40;
-	int practiceBockDeadlineCutoff = 10;
-	int practiceBlockFeedbackCutoff = 20;
+	int practiceBlockSize = 4;
+	int practiceBockDeadlineCutoff = 1;
+	int practiceBlockFeedbackCutoff = 2;
 
 	// which block is it currently
 	int experimentalBlockCount = 1;
 	// number of trials per block
-	int experimentalBlockSize = 160;
+	int experimentalBlockSize = 10;
 	// how many blocks are the max
 	int experimentalBlockNum = 4;
+
+	bool gameFinished = false;
 
 	bool instructions = true;
 	int instructionsSlide = 1;
