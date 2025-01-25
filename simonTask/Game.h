@@ -1,6 +1,6 @@
 #pragma once
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_image.h"	
+#include "SDL.h"
+#include "SDL_image.h"	
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -38,7 +38,7 @@ private:
 	// Change These per participant
 	// condition: 0 = with latency in 1 & 2 Block; 1 = with latency in 3 & 4 Block
 	int experimentalCondition = 1;
-	int participantId = 3;
+	int participantId = 4;
 	int latency = 120;
 	bool gamePaused = false;
 	bool startRealScreen = false;
@@ -83,6 +83,9 @@ private:
 	int experimentalBlockSize = 160;
 	// how many blocks are the max
 	int experimentalBlockNum = 4;
+
+	bool instructions = true;
+	int instructionsSlide = 1;
 
 	std::ofstream mouseDataFile;	
 	std::ofstream trialDataFile;

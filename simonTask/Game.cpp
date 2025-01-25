@@ -25,9 +25,6 @@ struct TrialInformationData {
 SDL_Texture* redBoxTex;
 SDL_Rect redBoxDestR;
 
-SDL_Texture* backgroundTex;
-SDL_Rect backgroundDestr;
-
 SDL_Texture* whiteBoxTex;
 SDL_Rect whiteBoxLeftDestR;
 SDL_Rect whiteBoxRightDestR;
@@ -38,14 +35,26 @@ SDL_Rect arrowLeftDestR;
 SDL_Texture* arrowRightTex;
 SDL_Rect arrowRightDestR;
 
+SDL_Texture* fullscreenTex;
+SDL_Rect fullscreenDestR;
+
 SDL_Texture* feedbackTex;
-SDL_Rect feedbackDestR;
-
+SDL_Texture* backgroundTex;
 SDL_Texture* pauseScreenTex;
-SDL_Rect pauseScreenDestR;
-
 SDL_Texture* startRealTex;
-SDL_Rect startRealDestR;
+
+SDL_Texture* instructionStartTex;
+SDL_Texture* instructionStep1Tex;
+SDL_Texture* instructionStep2Tex;
+SDL_Texture* instructionStep3Tex;
+SDL_Texture* instructionEndTex;
+
+SDL_Texture* Block1FinishedTex;
+SDL_Texture* Block2FinishedTex;
+SDL_Texture* Block3FinishedTex;
+SDL_Texture* FinishedTex;
+
+SDL_Texture* ErrorScreenTex;
 
 std::vector<MouseData> mouse_data;
 
@@ -209,26 +218,10 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	arrowRightDestR.x = 1421;
 	arrowRightDestR.y = 450;
 
-	feedbackDestR.h = 1080;
-	feedbackDestR.w = 1920;
-	feedbackDestR.x = 0;
-	feedbackDestR.y = 0;
-
-	backgroundDestr.h = 1080;
-	backgroundDestr.w = 1920;
-	backgroundDestr.x = 0;
-	backgroundDestr.y = 0;
-
-	pauseScreenDestR.h = 1080;
-	pauseScreenDestR.w = 1920;
-	pauseScreenDestR.x = 0;
-	pauseScreenDestR.y = 0;
-
-	startRealDestR.h = 1080;
-	startRealDestR.w = 1920;
-	startRealDestR.x = 0;
-	startRealDestR.y = 0;
-
+	fullscreenDestR.h = 1080;
+	fullscreenDestR.w = 1920;
+	fullscreenDestR.x = 0;
+	fullscreenDestR.y = 0;
 
 	if (experimentalCondition == 0) {
 		std::string command = "echo \"" + std::to_string(0) + " " +
@@ -321,6 +314,46 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	SDL_Surface* tmpSurfaceStartReal = IMG_Load("assets/startReal.png");
 	startRealTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceStartReal);
 	SDL_FreeSurface(tmpSurfaceStartReal);
+
+	SDL_Surface* tmpSurfaceInstructionsStart = IMG_Load("assets/Instructions-start.png");
+	instructionStartTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceInstructionsStart);
+	SDL_FreeSurface(tmpSurfaceInstructionsStart);
+
+	SDL_Surface* tmpSurfaceInstructionsEnd = IMG_Load("assets/Instructions-end.png");
+	instructionEndTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceInstructionsEnd);
+	SDL_FreeSurface(tmpSurfaceInstructionsEnd);
+
+	SDL_Surface* tmpSurfaceInstructionsStepOne = IMG_Load("assets/Instructions-1.png");
+	instructionStep1Tex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceInstructionsStepOne);
+	SDL_FreeSurface(tmpSurfaceInstructionsStepOne);
+
+	SDL_Surface* tmpSurfaceInstructionsStepTwo = IMG_Load("assets/Instructions-2.png");
+	instructionStep2Tex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceInstructionsStepTwo);
+	SDL_FreeSurface(tmpSurfaceInstructionsStepTwo);
+
+	SDL_Surface* tmpSurfaceInstructionsStepThree = IMG_Load("assets/Instructions-3.png");
+	instructionStep3Tex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceInstructionsStepThree);
+	SDL_FreeSurface(tmpSurfaceInstructionsStepThree);
+
+	SDL_Surface* tmpSurfaceError = IMG_Load("assets/Error.png");
+	ErrorScreenTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceError);
+	SDL_FreeSurface(tmpSurfaceError);
+
+	SDL_Surface* tmpSurfaceBlock1Finished = IMG_Load("assets/Block-1.png");
+	Block1FinishedTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceBlock1Finished);
+	SDL_FreeSurface(tmpSurfaceBlock1Finished);
+
+	SDL_Surface* tmpSurfaceBlock2Finished = IMG_Load("assets/Block-2.png");
+	Block2FinishedTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceBlock2Finished);
+	SDL_FreeSurface(tmpSurfaceBlock2Finished);
+
+	SDL_Surface* tmpSurfaceBlock3Finished = IMG_Load("assets/Block-3.png");
+	Block3FinishedTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceBlock3Finished);
+	SDL_FreeSurface(tmpSurfaceBlock3Finished);
+
+	SDL_Surface* tmpSurfaceFinished = IMG_Load("assets/Finished.png");
+	FinishedTex = SDL_CreateTextureFromSurface(renderer, tmpSurfaceFinished);
+	SDL_FreeSurface(tmpSurfaceFinished);
 }
 
 void Game::generateAndShuffleMatrix(int matrixBlockSize)
@@ -425,28 +458,47 @@ void Game::handleEvents()
 	SDL_PollEvent(&event);
 	sampleMouseData();
 
+	bool realTrial = !isFeedbackDisplayed && !gamePaused && !startRealScreen && !instructions;
+
 	switch (event.type) {
 		case SDL_QUIT:
 			isRunning = false;
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && !isFeedbackDisplayed && !gamePaused && !startRealScreen)
+			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1 && realTrial)
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
 			}
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_SPACE) {
-				if (gamePaused || startRealScreen) {
+				
+				if (instructions && instructionsSlide == 5) {
+					instructions = false;
+				} else if (gamePaused || startRealScreen) {
 					deadlineTimer = SDL_GetTicks();
 					reaction_time = 0;
 					gamePaused = false;
 					startRealScreen = false;
 				}
 			}
+
+			if (instructions) {
+				if (event.key.keysym.sym == SDLK_RIGHT) {
+					if (instructionsSlide < 5) {
+						instructionsSlide++;
+					}
+				}
+
+				if (event.key.keysym.sym == SDLK_LEFT) {
+					if (instructionsSlide > 1) {
+						instructionsSlide--;
+					}
+				}
+			}
 			break;
 		case SDL_MOUSEMOTION:
-			if (isFeedbackDisplayed || gamePaused) {
+			if (!realTrial) {
 				break;
 			}
 
@@ -591,7 +643,7 @@ void Game::update()
 			feedbackTimer = 0;
 		}
 
-	}	else if (hasDeadline && !gamePaused && !startRealScreen)
+	}	else if (hasDeadline && !gamePaused && !startRealScreen && !instructions)
 	{
 		sampleMouseData();
 		Uint32 timeDiff = SDL_GetTicks() - deadlineTimer;
@@ -610,49 +662,75 @@ void Game::render()
 	sampleMouseData();
 	SDL_RenderClear(renderer);
 
-	SDL_RenderCopy(renderer, backgroundTex, NULL, &backgroundDestr);
+	if (instructions) {
 
-	if (isFeedbackDisplayed) {
-		SDL_RenderCopy(renderer, feedbackTex, NULL, &feedbackDestR);
-	}
-	else if (gamePaused) {
-		SDL_RenderCopy(renderer, pauseScreenTex, NULL, &pauseScreenDestR);
-	}
-	else if (startRealScreen) {
-		SDL_RenderCopy(renderer, startRealTex, NULL, &startRealDestR);
-	}
-	else if (trialPhase == 1)
-	{
-		SDL_RenderCopy(renderer, redBoxTex, NULL, &redBoxDestR);
-	}
-	else if (trialPhase == 2) {
-		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxLeftDestR);
-		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxRightDestR);
+		switch (instructionsSlide) {
+			case 1:
+				SDL_RenderCopy(renderer, instructionStartTex, NULL, &fullscreenDestR);
+				break;
+			case 2:
+				SDL_RenderCopy(renderer, instructionStep1Tex, NULL, &fullscreenDestR);
+				break;  
+			case 3:
+				SDL_RenderCopy(renderer, instructionStep2Tex, NULL, &fullscreenDestR);
+				break;  
+			case 4:
+				SDL_RenderCopy(renderer, instructionStep3Tex, NULL, &fullscreenDestR);
+				break;  
+			case 5:
+				SDL_RenderCopy(renderer, instructionEndTex, NULL, &fullscreenDestR);
+				break;  
+			default:
+				break;
+		}
+
 	}
 	else {
-		if (currentTrial.stimulusPosition)
+		SDL_RenderCopy(renderer, backgroundTex, NULL, &fullscreenDestR);
+
+		if (isFeedbackDisplayed) {
+			SDL_RenderCopy(renderer, feedbackTex, NULL, &fullscreenDestR);
+		}
+		else if (gamePaused) {
+			SDL_RenderCopy(renderer, pauseScreenTex, NULL, &fullscreenDestR);
+		}
+		else if (startRealScreen) {
+			SDL_RenderCopy(renderer, startRealTex, NULL, &fullscreenDestR);
+		}
+		else if (trialPhase == 1)
 		{
-			if (currentTrial.stimulusDirection)
-			{
-				SDL_RenderCopy(renderer, arrowRightTex, NULL, &arrowRightDestR);
-			}
-			else {
-				SDL_RenderCopy(renderer, arrowLeftTex, NULL, &arrowRightDestR);
-			}
+			SDL_RenderCopy(renderer, redBoxTex, NULL, &redBoxDestR);
+		}
+		else if (trialPhase == 2) {
+			SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxLeftDestR);
+			SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxRightDestR);
 		}
 		else {
-			if (currentTrial.stimulusDirection)
+			if (currentTrial.stimulusPosition)
 			{
-				SDL_RenderCopy(renderer, arrowRightTex, NULL, &arrowLeftDestR);
+				if (currentTrial.stimulusDirection)
+				{
+					SDL_RenderCopy(renderer, arrowRightTex, NULL, &arrowRightDestR);
+				}
+				else {
+					SDL_RenderCopy(renderer, arrowLeftTex, NULL, &arrowRightDestR);
+				}
 			}
 			else {
-				SDL_RenderCopy(renderer, arrowLeftTex, NULL, &arrowLeftDestR);
+				if (currentTrial.stimulusDirection)
+				{
+					SDL_RenderCopy(renderer, arrowRightTex, NULL, &arrowLeftDestR);
+				}
+				else {
+					SDL_RenderCopy(renderer, arrowLeftTex, NULL, &arrowLeftDestR);
+				}
 			}
-		}
 
-		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxLeftDestR);
-		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxRightDestR);
+			SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxLeftDestR);
+			SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxRightDestR);
+		}
 	}
+
 	SDL_RenderPresent(renderer);
 }
 
