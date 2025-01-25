@@ -1,3 +1,5 @@
 ﻿  Game.cpp
-C:\Users\Matthias\source\repos\simonTask\simonTask\Game.cpp(623,16): warning C4018: ">=": Konflikt zwischen "signed" und "unsigned"
+C:\Users\Matthias\source\repos\simonTask\simonTask\Game.cpp(618,16): warning C4018: ">=": Konflikt zwischen "signed" und "unsigned"
+  main.cpp
+  Code wird generiert...
   simonTask.vcxproj -> C:\Users\Matthias\source\repos\simonTask\x64\Debug\simonTask.exe

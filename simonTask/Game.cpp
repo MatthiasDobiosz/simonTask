@@ -453,7 +453,7 @@ void Game::handleEvents()
 	SDL_PollEvent(&event);
 	sampleMouseData();
 
-	bool realTrial = !isFeedbackDisplayed && !gamePaused && !startRealScreen && !instructions  && !gameFinished;
+	bool realTrial = !isFeedbackDisplayed && !gamePaused && !startRealScreen && !instructions  && !gameFinished && !deadlineError;
 
 	switch (event.type) {
 		case SDL_QUIT:
@@ -610,7 +610,7 @@ void Game::handleEvents()
 
 void Game::sampleMouseData()
 {
-	if (trialPhase == 3 && !isPracticeBlock && !gameFinished && !gamePaused && !instructions) {
+	if (trialPhase == 3 && !isPracticeBlock && !gameFinished && !gamePaused && !instructions && !deadlineError) {
 		// Timer-based sampling
 		Uint32 currentTime = SDL_GetTicks();
 		Uint32 timeDiff = currentTime - last_sample_time;
@@ -632,7 +632,20 @@ void Game::sampleMouseData()
 
 void Game::update()
 {
-	if (isFeedbackDisplayed)
+	if (deadlineError) {
+		if (deadlineErrorTimer == 0) {
+			deadlineErrorTimer = SDL_GetTicks();
+		}
+		
+		if (SDL_GetTicks() - deadlineErrorTimer > deadlineErrorDuration) {
+			last_sample_time = SDL_GetTicks();
+			reaction_time = 0;
+			advanceTrial(0);
+			deadlineError = false;
+			deadlineErrorTimer = 0;
+		}
+	}
+	else if (isFeedbackDisplayed)
 	{
 		deadlineTimer = SDL_GetTicks();
 		if (feedbackTimer == 0) {
@@ -645,16 +658,14 @@ void Game::update()
 			feedbackTimer = 0;
 		}
 
-	}	else if (hasDeadline && !gamePaused && !startRealScreen && !instructions && !gameFinished)
+	}	else if (hasDeadline && !gamePaused && !startRealScreen && !instructions && !gameFinished && !deadlineError)
 	{
 		sampleMouseData();
 		Uint32 timeDiff = SDL_GetTicks() - deadlineTimer;
 		
 		if (trialPhase == 1 && timeDiff > phase1Deadline || trialPhase == 2 && timeDiff > phase2Deadline || trialPhase == 3 && timeDiff > phase3Deadline)
 		{
-			last_sample_time = SDL_GetTicks();
-			reaction_time = 0;
-			advanceTrial(0);
+			deadlineError = true;
 		}
 	}
 }
@@ -666,6 +677,9 @@ void Game::render()
 
 	if (gameFinished) {
 		SDL_RenderCopy(renderer, FinishedTex, NULL, &fullscreenDestR);
+	}
+	else if (deadlineError) {
+		SDL_RenderCopy(renderer, ErrorScreenTex, NULL, &fullscreenDestR);
 	}
 	else if (instructions) {
 		switch (instructionsSlide) {

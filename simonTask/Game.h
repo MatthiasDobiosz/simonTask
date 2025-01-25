@@ -86,6 +86,10 @@ private:
 
 	bool gameFinished = false;
 
+	bool deadlineError = false;
+	Uint32 deadlineErrorDuration = 100;
+	Uint32 deadlineErrorTimer = 0;
+
 	bool instructions = true;
 	int instructionsSlide = 1;
 
