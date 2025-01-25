@@ -6,6 +6,16 @@ int main(int argc, char* argv[])
 {
 	game = new Game();
 
+	if (argc == 4) {
+		game->setExperimentalCondition(std::atoi(argv[1]));  
+		game->setParticipantId(std::atoi(argv[2])); 
+		game->setLatency(std::atoi(argv[3]));   
+		std::cout << "Using sysargs" << std::endl;
+	}
+	else {
+		std::cout << "Using default values" << std::endl;
+	}
+
 	game->init("Task", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, true);
 
 	while (game->running()) {

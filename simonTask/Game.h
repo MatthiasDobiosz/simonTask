@@ -18,6 +18,8 @@ struct Trial {
 class Game
 {
 public:
+	// Change These per participant
+	// condition: 0 = with latency in 1 & 2 Block; 1 = with latency in 3 & 4 Block
 	Game();
 	~Game();
 
@@ -32,16 +34,20 @@ public:
 	void saveData();
 	void sampleMouseData();
 
+	// Setters
+	void setExperimentalCondition(int condition) { experimentalCondition = condition; }
+	void setParticipantId(int participantId) { participantId = participantId; }
+	void setLatency(int latency) { latency = latency; }
+
 	bool running() { return isRunning; }
 
 private:
-	// Change These per participant
-	// condition: 0 = with latency in 1 & 2 Block; 1 = with latency in 3 & 4 Block
-	int experimentalCondition = 1;
-	int participantId = 4;
-	int latency = 120;
 	bool gamePaused = false;
 	bool startRealScreen = false;
+
+	int experimentalCondition = 0;
+	int participantId = 5;
+	int latency = 80;
 
 	// interval for saving mouse data 
 	// 10ms = 100Hz
