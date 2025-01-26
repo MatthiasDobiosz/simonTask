@@ -55,6 +55,8 @@ SDL_Texture* FinishedTex;
 
 SDL_Texture* ErrorScreenTex;
 
+SDL_Rect latencyTrackingBoxDestR;
+
 std::vector<MouseData> mouse_data;
 
 std::vector<TrialInformationData> trial_information_data;
@@ -222,9 +224,14 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	fullscreenDestR.x = 0;
 	fullscreenDestR.y = 0;
 
+	latencyTrackingBoxDestR.h = 100;
+	latencyTrackingBoxDestR.w = 100;
+	latencyTrackingBoxDestR.x = 100;
+	latencyTrackingBoxDestR.y = 900;
+
 	if (experimentalCondition == 0) {
-		std::string command = "echo \"" + std::to_string(0) + " " +
-			std::to_string(0) + " " +
+		std::string command = "echo \"" + std::to_string(latency) + " " +
+			std::to_string(latency) + " " +
 			std::to_string(latency) + " " +
 			std::to_string(latency) +
 			"\" > " + "/tmp/DelayDaemon";
@@ -409,8 +416,8 @@ void Game::advanceTrial(int success)
 
 			if (experimentalBlockCount == 3) {
 				if (experimentalCondition == 1) {
-					std::string command = "echo \"" + std::to_string(0) + " " +
-						std::to_string(0) + " " +
+					std::string command = "echo \"" + std::to_string(latency) + " " +
+						std::to_string(latency) + " " +
 						std::to_string(latency) + " " +
 						std::to_string(latency) +
 						"\" > " + "/tmp/DelayDaemon";
@@ -468,7 +475,15 @@ void Game::handleEvents()
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
+				showLatencyTrackingBox = true;
 			}
+
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			showLatencyTrackingBox = false;
+
+			break;
 		case SDL_KEYDOWN:
 			if (gameFinished && event.key.keysym.sym == SDLK_ESCAPE) {
 				isRunning = false;
@@ -498,12 +513,9 @@ void Game::handleEvents()
 					}
 				}
 			}
+
 			break;
 		case SDL_MOUSEMOTION:
-			if (!realTrial) {
-				break;
-			}
-
 			// handle upwards movement when in Phase 2 
 			if (trialPhase == 2)
 			{
@@ -526,7 +538,6 @@ void Game::handleEvents()
 					trialPhase = 3;
 					deadlineTimer = SDL_GetTicks();
 					last_sample_time = SDL_GetTicks();
-					std::cout << "reset" << std::endl;
 					reaction_time = 0;
 
 					if (!isPracticeBlock) {
@@ -571,6 +582,7 @@ void Game::handleEvents()
 				}
 				*/
 			}
+
 			// handle tracking of mouse data in Phase 3
 			else if (trialPhase == 3) {
 				if (upwardDetected) {
@@ -603,6 +615,8 @@ void Game::handleEvents()
 					}
 				}
 			}
+
+			break;
 		default: 
 			break;
 	}
@@ -757,6 +771,10 @@ void Game::render()
 			SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxLeftDestR);
 			SDL_RenderCopy(renderer, whiteBoxTex, NULL, &whiteBoxRightDestR);
 		}
+	}
+
+	if (showLatencyTrackingBox) {
+		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &latencyTrackingBoxDestR);
 	}
 
 	SDL_RenderPresent(renderer);

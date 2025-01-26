@@ -107,6 +107,8 @@ private:
 	Trial currentTrial;
 	Trial previousTrial;
 
+	bool showLatencyTrackingBox = false;
+
 	bool isRunning;
 	SDL_Window *window;
 	SDL_Renderer *renderer;
