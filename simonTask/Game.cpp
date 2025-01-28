@@ -226,8 +226,8 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 
 	latencyTrackingBoxDestR.h = 100;
 	latencyTrackingBoxDestR.w = 100;
-	latencyTrackingBoxDestR.x = 100;
-	latencyTrackingBoxDestR.y = 900;
+	latencyTrackingBoxDestR.x = 0;
+	latencyTrackingBoxDestR.y = 980;
 
 	if (experimentalCondition == 0) {
 		std::string command = "echo \"" + std::to_string(latency) + " " +
@@ -480,10 +480,6 @@ void Game::handleEvents()
 
 			break;
 
-		case SDL_MOUSEBUTTONUP:
-			showLatencyTrackingBox = false;
-
-			break;
 		case SDL_KEYDOWN:
 			if (gameFinished && event.key.keysym.sym == SDLK_ESCAPE) {
 				isRunning = false;
@@ -516,7 +512,13 @@ void Game::handleEvents()
 
 			break;
 		case SDL_MOUSEMOTION:
-			// handle upwards movement when in Phase 2 
+			// handle upwards movement when in Phase 2
+
+		        if(trialPhase == 1){
+				if(isPointInRect(event.button.x, event.button.y, redBoxDestR)){
+						showLatencyTrackingBox = false;
+				}
+			}	
 			if (trialPhase == 2)
 			{
 

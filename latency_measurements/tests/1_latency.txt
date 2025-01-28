@@ -1,0 +1,133 @@
+# 240 Hz, Logitech
+# black: 925
+
+# white: 926
+
+# threshold: 925
+
+# click
+
+1133856
+
+# click
+
+167412
+
+# click
+
+790444
+
+# black: 931
+
+# white: 220
+
+# threshold: 576
+
+# click
+
+112
+
+# click
+
+12540
+
+# click
+
+15456
+
+# click
+
+11988
+
+# click
+
+12876
+
+# click
+
+15568
+
+# click
+
+12768
+
+# click
+
+15564
+
+# click
+
+12772
+
+# click
+
+14672
+
+# click
+
+14008
+
+# click
+
+13436
+
+# click
+
+13220
+
+# click
+
+12204
+
+# click
+
+12996
+
+# click
+
+15576
+
+# click
+
+12920096
+
+# click
+
+15340
+
+# click
+
+13896
+
+# click
+
+15232
+
+# click
+
+14456
+
+# click
+
+14444
+
+# click
+
+14120
+
+# click
+
+15232
+
+# click
+
+13224
+
+# click
+
+12212
+
+# click
+
+14788
+

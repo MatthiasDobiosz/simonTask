@@ -1,0 +1,49 @@
+# 60 Hz, Razer
+# black: 925
+
+# white: 220
+
+# threshold: 573
+
+# click
+
+112
+
+# click
+
+37744
+
+# click
+
+26232
+
+# click
+
+24204
+
+# click
+
+116
+
+# click
+
+25984
+
+# click
+
+29236
+
+# click
+
+31716
+
+# click
+
+30256
+
+# click
+
+34052
+
+# click
+

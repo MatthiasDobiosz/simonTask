@@ -1,0 +1,290 @@
+# black: 936
+
+# white: 224
+
+# threshold: 580
+
+# click
+
+112
+
+# click
+
+76044
+
+# click
+
+74256
+
+# click
+
+73140
+
+# click
+
+72804
+
+# click
+
+71908
+
+# click
+
+74476
+
+# click
+
+73636
+
+# click
+
+72804
+
+# click
+
+71680
+
+# click
+
+72704
+
+# click
+
+73748
+
+# click
+
+74144
+
+# click
+
+71460
+
+# click
+
+72124
+
+# click
+
+74540
+
+# click
+
+73584
+
+# click
+
+75412
+
+# click
+
+73704
+
+# click
+
+73524
+
+# click
+
+71912
+
+# click
+
+71276
+
+# click
+
+74524
+
+# click
+
+73068
+
+# click
+
+75492
+
+# click
+
+71612
+
+# click
+
+74968
+
+# click
+
+72292
+
+# click
+
+73740
+
+# click
+
+74480
+
+# click
+
+73808
+
+# click
+
+72736
+
+# click
+
+74812
+
+# click
+
+72396
+
+# click
+
+74708
+
+# click
+
+73072
+
+# click
+
+73364
+
+# click
+
+74876
+
+# click
+
+72180
+
+# click
+
+71840
+
+# click
+
+73292
+
+# click
+
+72284
+
+# click
+
+73044
+
+# click
+
+72048
+
+# click
+
+75192
+
+# click
+
+71012
+
+# click
+
+72176
+
+# click
+
+71736
+
+# click
+
+73140
+
+# click
+
+71572
+
+# click
+
+72620
+
+# click
+
+72908
+
+# click
+
+75148
+
+# click
+
+72804
+
+# click
+
+72584
+
+# click
+
+72600
+
+# click
+
+75200
+
+# click
+
+74260
+
+# click
+
+72952
+
+# click
+
+73408
+
+# click
+
+75204
+
+# click
+
+74416
+
+# click
+
+73504
+
+# click
+
+71792
+
+# click
+
+71280
+
+# click
+
+71344
+
+# click
+
+74084
+
+# click
+
+72804
+
+# click
+
+75148
+
+# click
+
+75088
+
+# click
+
+21979704
+

@@ -1,6 +1,6 @@
 #pragma once
-#include "SDL.h"
-#include "SDL_image.h"	
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"	
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -47,7 +47,7 @@ private:
 
 	int experimentalCondition = 0;
 	int participantId = 5;
-	int latency = 80;
+	int latency = 120;
 
 	// interval for saving mouse data 
 	// 10ms = 100Hz
@@ -68,9 +68,9 @@ private:
 
 	// track the phase for a single trial
 	int trialPhase = 1;
-	Uint32 phase1Deadline = 1500;
-	Uint32 phase2Deadline = 1500;
-	Uint32 phase3Deadline = 2000;
+	Uint32 phase1Deadline = 15000;
+	Uint32 phase2Deadline = 15000;
+	Uint32 phase3Deadline = 20000;
 
 	//Information about trialCount and trial conditions
 	bool hasDeadline = false;
@@ -86,7 +86,7 @@ private:
 	// which block is it currently
 	int experimentalBlockCount = 1;
 	// number of trials per block
-	int experimentalBlockSize = 10;
+	int experimentalBlockSize = 70;
 	// how many blocks are the max
 	int experimentalBlockNum = 4;
 

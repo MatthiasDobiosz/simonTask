@@ -1,0 +1,83 @@
+# 240 Hz, Razer Maus
+# black: 925
+
+# white: 225
+
+# threshold: 575
+
+# click
+
+112
+
+# click
+
+13888
+
+# click
+
+11096
+
+# click
+
+12212
+
+# click
+
+15132
+
+# click
+
+12776
+
+# click
+
+12556
+
+# click
+
+14676
+
+# click
+
+14568
+
+# click
+
+13104
+
+# click
+
+10544
+
+# click
+
+13676
+
+# click
+
+14244
+
+# click
+
+11544
+
+# click
+
+12100
+
+# click
+
+13556
+
+# click
+
+11432
+
+# click
+
+14012
+
+# click
+
+18315692
+

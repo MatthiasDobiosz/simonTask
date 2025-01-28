@@ -1,0 +1,306 @@
+# black: 932
+
+# white: 226
+
+# threshold: 579
+
+# click
+
+112
+
+# click
+
+95368
+
+# click
+
+92576
+
+# click
+
+92804
+
+# click
+
+92796
+
+# click
+
+91544
+
+# click
+
+93752
+
+# click
+
+91956
+
+# click
+
+91728
+
+# click
+
+94036
+
+# click
+
+93864
+
+# click
+
+91900
+
+# click
+
+93576
+
+# click
+
+91524
+
+# click
+
+92008
+
+# click
+
+91304
+
+# click
+
+92512
+
+# click
+
+91232
+
+# click
+
+94476
+
+# click
+
+92008
+
+# click
+
+93424
+
+# click
+
+94252
+
+# click
+
+93200
+
+# click
+
+94196
+
+# click
+
+93408
+
+# click
+
+91892
+
+# click
+
+92524
+
+# click
+
+94812
+
+# click
+
+92848
+
+# click
+
+95904
+
+# click
+
+93860
+
+# click
+
+93408
+
+# click
+
+91764
+
+# click
+
+93748
+
+# click
+
+91084
+
+# click
+
+93468
+
+# click
+
+91736
+
+# click
+
+91672
+
+# click
+
+94092
+
+# click
+
+94008
+
+# click
+
+95120
+
+# click
+
+92796
+
+# click
+
+93916
+
+# click
+
+92732
+
+# click
+
+94436
+
+# click
+
+91504
+
+# click
+
+93632
+
+# click
+
+90612
+
+# click
+
+91508
+
+# click
+
+94260
+
+# click
+
+94820
+
+# click
+
+92792
+
+# click
+
+92908
+
+# click
+
+94312
+
+# click
+
+95544
+
+# click
+
+92016
+
+# click
+
+94584
+
+# click
+
+93304
+
+# click
+
+94364
+
+# click
+
+94452
+
+# click
+
+93244
+
+# click
+
+95148
+
+# click
+
+92072
+
+# click
+
+94700
+
+# click
+
+93188
+
+# click
+
+92680
+
+# click
+
+93068
+
+# click
+
+92968
+
+# click
+
+92120
+
+# click
+
+92676
+
+# click
+
+92424
+
+# click
+
+93680
+
+# click
+
+94196
+
+# click
+
+94472
+
+# click
+
+19827056
+

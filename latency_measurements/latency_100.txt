@@ -1,0 +1,286 @@
+# black: 937
+
+# white: 224
+
+# threshold: 581
+
+# click
+
+111480
+
+# click
+
+112756
+
+# click
+
+112336
+
+# click
+
+113840
+
+# click
+
+112192
+
+# click
+
+112896
+
+# click
+
+113860
+
+# click
+
+112952
+
+# click
+
+114376
+
+# click
+
+113072
+
+# click
+
+114596
+
+# click
+
+115148
+
+# click
+
+114652
+
+# click
+
+114812
+
+# click
+
+113860
+
+# click
+
+112332
+
+# click
+
+112016
+
+# click
+
+113932
+
+# click
+
+114916
+
+# click
+
+111280
+
+# click
+
+114872
+
+# click
+
+113236
+
+# click
+
+112044
+
+# click
+
+117044
+
+# click
+
+113196
+
+# click
+
+113564
+
+# click
+
+113636
+
+# click
+
+115024
+
+# click
+
+111512
+
+# click
+
+113024
+
+# click
+
+114420
+
+# click
+
+112120
+
+# click
+
+112132
+
+# click
+
+113528
+
+# click
+
+112916
+
+# click
+
+112788
+
+# click
+
+112408
+
+# click
+
+111780
+
+# click
+
+114860
+
+# click
+
+111788
+
+# click
+
+112364
+
+# click
+
+112120
+
+# click
+
+113872
+
+# click
+
+112736
+
+# click
+
+113568
+
+# click
+
+114084
+
+# click
+
+114728
+
+# click
+
+112736
+
+# click
+
+114536
+
+# click
+
+13185136
+
+# click
+
+111328
+
+# click
+
+113160
+
+# click
+
+112188
+
+# click
+
+114316
+
+# click
+
+112504
+
+# click
+
+112292
+
+# click
+
+112968
+
+# click
+
+113700
+
+# click
+
+112728
+
+# click
+
+110704
+
+# click
+
+113680
+
+# click
+
+112176
+
+# click
+
+113460
+
+# click
+
+113636
+
+# click
+
+112452
+
+# click
+
+112856
+
+# click
+
+113512
+
+# click
+
+114584
+
+# click
+
+111336
+
+# click
+
+18892628
+

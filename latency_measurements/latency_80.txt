@@ -1,0 +1,24 @@
+# black: 933
+
+# white: 226
+
+# threshold: 580
+
+# click
+
+112
+
+# click
+
+15136104
+
+# click
+
+4924136
+
+# click
+
+20903652
+
+# click
+

@@ -1,0 +1,290 @@
+# black: 931
+
+# white: 222
+
+# threshold: 577
+
+# click
+
+112
+
+# click
+
+12216
+
+# click
+
+13436
+
+# click
+
+12768
+
+# click
+
+12212
+
+# click
+
+12208
+
+# click
+
+11320
+
+# click
+
+14344
+
+# click
+
+12768
+
+# click
+
+13224
+
+# click
+
+11320
+
+# click
+
+11760
+
+# click
+
+11652
+
+# click
+
+10988
+
+# click
+
+14232
+
+# click
+
+12556
+
+# click
+
+13340
+
+# click
+
+12884
+
+# click
+
+13560
+
+# click
+
+13228
+
+# click
+
+13900
+
+# click
+
+13224
+
+# click
+
+15240
+
+# click
+
+11992
+
+# click
+
+12772
+
+# click
+
+15576
+
+# click
+
+15232
+
+# click
+
+14684
+
+# click
+
+11544
+
+# click
+
+12996
+
+# click
+
+12552
+
+# click
+
+12548
+
+# click
+
+10648
+
+# click
+
+12208
+
+# click
+
+11096
+
+# click
+
+13888
+
+# click
+
+15008
+
+# click
+
+11980
+
+# click
+
+13228
+
+# click
+
+12212
+
+# click
+
+10980
+
+# click
+
+11096
+
+# click
+
+14344
+
+# click
+
+11872
+
+# click
+
+14572
+
+# click
+
+13564
+
+# click
+
+13556
+
+# click
+
+13788
+
+# click
+
+12428
+
+# click
+
+14672
+
+# click
+
+15004
+
+# click
+
+12328
+
+# click
+
+13564
+
+# click
+
+13112
+
+# click
+
+12440
+
+# click
+
+13668
+
+# click
+
+15344
+
+# click
+
+11656
+
+# click
+
+12428
+
+# click
+
+12432
+
+# click
+
+14112
+
+# click
+
+13224
+
+# click
+
+12656
+
+# click
+
+14012
+
+# click
+
+14332
+
+# click
+
+14808
+
+# click
+
+14912
+
+# click
+
+14900
+
+# click
+
+13448
+
+# click
+
+12552
+
+# click
+
+12552
+
