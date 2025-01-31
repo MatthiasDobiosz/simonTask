@@ -6,7 +6,7 @@ int main(int argc, char* argv[])
 {
 	game = new Game();
 
-	if (argc == 4) {
+	if (argc == 3) {
 		game->setExperimentalCondition(std::atoi(argv[1]));  
 		game->setParticipantId(std::atoi(argv[2])); 
 		game->setLatency(std::atoi(argv[3]));   

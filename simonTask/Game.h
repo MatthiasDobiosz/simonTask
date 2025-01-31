@@ -47,7 +47,7 @@ private:
 
 	int experimentalCondition = 0;
 	int participantId = 5;
-	int latency = 120;
+	int latency = 80;
 
 	// interval for saving mouse data 
 	// 10ms = 100Hz
@@ -68,9 +68,9 @@ private:
 
 	// track the phase for a single trial
 	int trialPhase = 1;
-	Uint32 phase1Deadline = 15000;
-	Uint32 phase2Deadline = 15000;
-	Uint32 phase3Deadline = 20000;
+	Uint32 phase1Deadline = 1500;
+	Uint32 phase2Deadline = 1500;
+	Uint32 phase3Deadline = 2000;
 
 	//Information about trialCount and trial conditions
 	bool hasDeadline = false;
@@ -79,14 +79,14 @@ private:
 	bool isFeedbackDisplayed = false;
 
 	bool isPracticeBlock = true;
-	int practiceBlockSize = 4;
-	int practiceBockDeadlineCutoff = 1;
-	int practiceBlockFeedbackCutoff = 2;
+	int practiceBlockSize = 40;
+	int practiceBockDeadlineCutoff = 10;
+	int practiceBlockFeedbackCutoff = 20;
 
 	// which block is it currently
 	int experimentalBlockCount = 1;
 	// number of trials per block
-	int experimentalBlockSize = 70;
+	int experimentalBlockSize = 320;
 	// how many blocks are the max
 	int experimentalBlockNum = 4;
 

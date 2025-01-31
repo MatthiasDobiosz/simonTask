@@ -475,7 +475,7 @@ void Game::handleEvents()
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
-				showLatencyTrackingBox = true;
+				//showLatencyTrackingBox = true;
 			}
 
 			break;
@@ -513,12 +513,12 @@ void Game::handleEvents()
 			break;
 		case SDL_MOUSEMOTION:
 			// handle upwards movement when in Phase 2
-
-		        if(trialPhase == 1){
+			/**
+		     if(trialPhase == 1){
 				if(isPointInRect(event.button.x, event.button.y, redBoxDestR)){
 						showLatencyTrackingBox = false;
 				}
-			}	
+			}	*/
 			if (trialPhase == 2)
 			{
 
@@ -775,9 +775,10 @@ void Game::render()
 		}
 	}
 
+	/**
 	if (showLatencyTrackingBox) {
 		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &latencyTrackingBoxDestR);
-	}
+	}*/
 
 	SDL_RenderPresent(renderer);
 }
