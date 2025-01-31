@@ -36,8 +36,8 @@ public:
 
 	// Setters
 	void setExperimentalCondition(int condition) { experimentalCondition = condition; }
-	void setParticipantId(int participantId) { participantId = participantId; }
-	void setLatency(int latency) { latency = latency; }
+	void setParticipantId(int participantId_arg) { participantId = participantId_arg; }
+	void setLatency(int latency_arg) { latency = latency_arg; }
 
 	bool running() { return isRunning; }
 

@@ -16918,3 +16918,11 @@ timedifference,trialnumber,blocknumber,xpos,ypos
 5,70,1,1508,318
 5,70,1,1548,274
 5,70,1,1569,250
+timedifference,trialnumber,blocknumber,xpos,ypos
+timedifference,trialnumber,blocknumber,xpos,ypos
+timedifference,trialnumber,blocknumber,xpos,ypos
+timedifference,trialnumber,blocknumber,xpos,ypos
+timedifference,trialnumber,blocknumber,xpos,ypos
+timedifference,trialnumber,blocknumber,xpos,ypos
+timedifference,trialnumber,blocknumber,xpos,ypos
+timedifference,trialnumber,blocknumber,xpos,ypos

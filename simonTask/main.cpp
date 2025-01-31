@@ -5,11 +5,12 @@ Game* game = nullptr;
 int main(int argc, char* argv[])
 {
 	game = new Game();
-
-	if (argc == 3) {
+	std::cout << argc << std::endl;
+	if (argc == 4) {
 		game->setExperimentalCondition(std::atoi(argv[1]));  
 		game->setParticipantId(std::atoi(argv[2])); 
 		game->setLatency(std::atoi(argv[3]));   
+		std::cout << std::atoi((argv[3])) << std::endl;
 		std::cout << "Using sysargs" << std::endl;
 	}
 	else {
