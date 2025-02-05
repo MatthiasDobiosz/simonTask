@@ -45,8 +45,8 @@ private:
 	bool gamePaused = false;
 	bool startRealScreen = false;
 
-	int experimentalCondition = 0;
-	int participantId = 2;
+	int experimentalCondition = 1;
+	int participantId = 3;
 	int latency = 80;
 
 	// interval for saving mouse data 
