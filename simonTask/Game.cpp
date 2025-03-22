@@ -22,6 +22,7 @@ struct TrialInformationData {
 	bool previousStimulusLocation;
 };
 
+// define textures and recs for all game objets
 SDL_Texture* redBoxTex;
 SDL_Rect redBoxDestR;
 
@@ -66,6 +67,7 @@ Game::Game()
 Game::~Game()
 {}
 
+// check if a point is inside a rectangle
 bool isPointInRect(int x, int y, const SDL_Rect& rect) {
 	return x >= rect.x && x <= rect.x + rect.w &&
 		y >= rect.y && y <= rect.y + rect.h;
@@ -75,6 +77,7 @@ int getNextMultipleOf16(int number) {
 	return (number + 15) / 16;
 }
 
+// generate a trial-repition matrix to balance out orders
 std::vector<Trial> generateMatrix(int repetitionsPerCombination) {
 	std::vector<Trial> trials;
 	bool isFirstTrial = true; 
@@ -100,24 +103,12 @@ std::vector<Trial> generateMatrix(int repetitionsPerCombination) {
 	return trials;
 }
 
-
+// shuffle matrix for randomization
 void shuffleMatrix(std::vector<Trial>& trials) {
 	std::random_device rd;
 	std::mt19937 g(rd());
 	std::shuffle(trials.begin(), trials.end(), g);
 }
-
-/**
-void addPreviousConiditonsToMatrix(std::vector<Trial>& trials)
-{
-	for (int i = 0; i < trials.size(); i++)
-	{
-		if (i != 0)
-		{
-			trials[i].previousCongruent = trials[i - 1].currentCongruent;
-		}
-	}
-} */
 
 void printMatrix(const std::vector<Trial>& trials) {
 	for (const auto& trial : trials) {
@@ -127,6 +118,7 @@ void printMatrix(const std::vector<Trial>& trials) {
 	}
 }
 
+// check if a given response is correct
 bool isCorrectResponse(std::string direction, Trial trial)
 {
 	if (direction == "right") {
@@ -148,6 +140,7 @@ bool isCorrectResponse(std::string direction, Trial trial)
 	return false;
 }
 
+// save the mouse and trial data
 void Game::saveData()
 {
 	if (mouseDataFile) {
@@ -177,21 +170,9 @@ void Game::saveData()
 
 	trial_information_data.clear();
 	trial_information_data.shrink_to_fit();
-
-	/**
-	std::cout << "Mouse Data Collected:\n";
-	for (const auto& data : mouse_data) {
-		std::cout << "Time: " << data.timestamp << ", Trial: " << data.trialCount << ", Block: " << data.blockCount << ", X: " << data.x << ", Y: " << data.y << std::endl;
-	}
-
-	std::cout << "Trial Data Collected:\n";
-	for (const auto& data : trial_data) {
-		std::cout << "Trial: " << data.trialCount << ", Block: " << data.blockCount << ", Success: " << data.success << ", RT: " << data.reactionTime << std::endl;
-	}
-	*/
-	
 }
 
+// init the game 
 void Game::init(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
 {
 	redBoxDestR.h = 220;
@@ -229,6 +210,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
 	latencyTrackingBoxDestR.x = 0;
 	latencyTrackingBoxDestR.y = 980;
 
+	// set latency at the start for condition 0
 	if (experimentalCondition == 0) {
 		std::string command = "echo \"" + std::to_string(latency) + " " +
 			std::to_string(latency) + " " +
@@ -367,6 +349,8 @@ void Game::generateAndShuffleMatrix(int matrixBlockSize)
 	previousTrial = {};
 }
 
+// continue to the next trial
+// apply logic and save data
 void Game::advanceTrial(int success)
 {
 	if (!isPracticeBlock) {
@@ -454,6 +438,7 @@ void Game::advanceTrial(int success)
 	//SDL_WarpMouseInWindow(window, 960, 960);
 }
 
+// handle mouse and keyboard events
 void Game::handleEvents()	
 {
 	SDL_Event event;
@@ -466,16 +451,17 @@ void Game::handleEvents()
 		case SDL_QUIT:
 			isRunning = false;
 			break;
+
 		case SDL_MOUSEBUTTONDOWN:
 			if (!realTrial) {
 				break;
 			}
 
+			// red button clicked
 			if (isPointInRect(event.button.x, event.button.y, redBoxDestR) && trialPhase == 1)
 			{
 				trialPhase = 2;
 				deadlineTimer = SDL_GetTicks();
-				//showLatencyTrackingBox = true;
 			}
 
 			break;
@@ -512,27 +498,19 @@ void Game::handleEvents()
 
 			break;
 		case SDL_MOUSEMOTION:
-			// handle upwards movement when in Phase 2
-			/**
-		     if(trialPhase == 1){
-				if(isPointInRect(event.button.x, event.button.y, redBoxDestR)){
-						showLatencyTrackingBox = false;
-				}
-			}	*/
 			if (trialPhase == 2)
 			{
 
-				int currentY = event.motion.y; // Current mouse Y position
-				Uint32 currentTime = SDL_GetTicks(); // Current time
+				int currentY = event.motion.y;
+				Uint32 currentTime = SDL_GetTicks(); 
 
-				// Initialize tracking variables
 				if (initialY == -1) {
 					initialY = currentY;
 					initialTime = currentTime;
 				}
 
 				// Check if upward movement threshold is reached
-				int deltaY = currentY - initialY; // Movement in the Y direction
+				int deltaY = currentY - initialY; 
 				Uint32 deltaTime = currentTime - initialTime;
 
 				if (!upwardDetected && deltaY <= -50 && deltaTime <= 250) {
@@ -548,12 +526,10 @@ void Game::handleEvents()
 						mouse_data.push_back({ trialCount, experimentalBlockCount, 0, event.motion.x, event.motion.y });
 					}
 
-					// Reset the tracking variables to detect again later
 					initialY = -1;
 					initialTime = 0;
 				}
 
-				// Reset if time window expires without sufficient movement
 				if (deltaTime > 250) {
 					initialY = -1;
 					initialTime = 0;
@@ -590,16 +566,14 @@ void Game::handleEvents()
 				if (upwardDetected) {
 					upwardDetected = false;
 				}
-				// user is in responds box
+				
 				if (isPointInRect(event.button.x, event.button.y, whiteBoxLeftDestR))
 				{
 					if (isCorrectResponse("left", currentTrial))
 					{
-						//std::cout << "correct" << std::endl;
 						advanceTrial(1);
 					}
 					else {
-						//std::cout << "incorrect" << std::endl;
 						advanceTrial(0);
 					}
 				
@@ -608,11 +582,9 @@ void Game::handleEvents()
 				{
 					if (isCorrectResponse("right", currentTrial))
 					{
-						//std::cout << "correct" << std::endl;
 						advanceTrial(1);
 					}
 					else {
-						//std::cout << "incorrect" << std::endl;
 						advanceTrial(0);
 					}
 				}
@@ -775,29 +747,21 @@ void Game::render()
 		}
 	}
 
-	/**
-	if (showLatencyTrackingBox) {
-		SDL_RenderCopy(renderer, whiteBoxTex, NULL, &latencyTrackingBoxDestR);
-	}*/
-
 	SDL_RenderPresent(renderer);
 }
 
 void Game::clean()
 {
-	//TODO: Save data at the end
-
-	//printMatrix(shuffledTrials);
 	std::string command = "echo \"0 0 0 0\" > /tmp/DelayDaemon";
 	std::system(command.c_str());
 	
 	if (mouseDataFile.is_open()) {
-		mouseDataFile.close(); // Close the file
+		mouseDataFile.close();
 		std::cout << "Mousedata file closed.\n";
 	}
 	
 	if (trialDataFile.is_open()) {
-		trialDataFile.close(); // Close the file
+		trialDataFile.close(); 
 		std::cout << "Trialdata file closed.\n";
 	}
 

@@ -42,9 +42,12 @@ public:
 	bool running() { return isRunning; }
 
 private:
+	// bool if game is currently paused (break)
 	bool gamePaused = false;
+	// bool if still in tutorial
 	bool startRealScreen = false;
 
+	// condition variables that can also be set from sysargs
 	int experimentalCondition = 1;
 	int participantId = 16;
 	int latency = 80;
